@@ -157,9 +157,10 @@ rhoC = 0.4592; % C cruise
 
 MAC = 8.75;
 Cm = -0.14;
-MoW = Cm*(0.5*rhoC*Vd^2*SrefWing*MAC);
-LHT = (-330800*9.81*(38.8831-30.86)+MoW)/(71.1-30.86)
-%disp("Lift Sam method: " + LHT)
+
+%------------------- 3.75 --------------------------------
+MoW = 3.75*Cm*(0.5*rhoC*Vd^2*SrefWing*MAC);
+LHT = (-330800*9.81*(38.8831-30.86)+MoW)/(71.1-30.86);
 
 A = [ xPosFSW	xPosBSW ;
         1	1];
@@ -185,6 +186,30 @@ aero(39) = forceRR; % back wing spar
 aero(31) = forceRF; %front wing spar
 aero(71) = LHT; % HT ac
 aero = aero(:,1);
+
+%-----------------------------------------------------
+
+%------------------- - 1.5 --------------------------------
+
+MoW15 = -1.5*Cm*(0.5*rhoC*Va^2*SrefWing*MAC);
+LHT15 = (-330800*9.81*(38.8831-30.86)+MoW15)/(71.1-30.86);
+
+A = [ xPosFSW	xPosBSW ;
+        1	1];
+B = [xPosFST*LHT_15*-1; LHT_15*-1];
+
+X15 = linsolve(A,B);
+forceRF15 = X15(1);
+forceRR15 = X15(2);
+
+aero15 = zeros(lTot+1);
+aero15(39) = forceRR15; % back wing spar
+aero15(31) = forceRF15; %front wing spar
+aero15(71) = LHT15; % HT ac
+aero15 = aero15(:,1);
+
+
+%-----------------------------------------------------
 
 %{
 figure;
@@ -271,14 +296,34 @@ for i = 2:length(aero)
     SFAero(i) = SFAero(i-1) + aero(i);
 end
 
+SFaero15 = [];
+SFaero15(i) = aero15(i);
+for i = 2:length(aero15)
+    SFaero15(i) = SFaero15(i-1) + aero15(i);
+end
 
-%for i = 1:length(total)
- %   SFAll(i) = SFInertial(i) + SFAero(i);
-%end
 
 
 figure;
-plot(xDiscr, SFInertial, 'b-', 'LineWidth', 1.5);
+plot(xDiscr, SFInertial, 'LineWidth', 1.5);
+hold on;
+plot(xDiscr, SFaero15, 'LineWidth', 1.5);
+hold on;
+plot(xDiscr, SFAero, 'LineWidth', 1.5);
+xlabel('Fuselage Position (m)','FontWeight','bold');
+ylabel('Shear Force (N/m)','FontWeight','bold');
+title('Shear Force along Fuselage');
+grid minor
+
+%------------ both SF --------------------
+
+SFTot375 = SFAero+SFInertial;
+SFTot15 = SFaero15+SFInertial;
+
+figure;
+plot(xDiscr, SFTot375, 'LineWidth', 1.5);
+hold on;
+plot(xDiscr, SFTot15, 'LineWidth', 1.5);
 xlabel('Fuselage Position (m)','FontWeight','bold');
 ylabel('Shear Force (N/m)','FontWeight','bold');
 title('Shear Force along Fuselage');
@@ -337,6 +382,7 @@ xlabel('Fuselage Position (m)','FontWeight','bold');
 ylabel('Bending Moment(Nm)','FontWeight','bold');
 title('Bending Moment along Fuselage');
 grid minor
+
 
 
 
