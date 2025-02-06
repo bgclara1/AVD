@@ -16,7 +16,7 @@ set(groot, 'defaultAxesFontName','Cambria Math')
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%           NERTIAL LOAD DISCRETISATION AND PLOTTING 
+%           INERTIAL LOAD DISCRETISATION AND PLOTTING 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 lTot = 80;
@@ -120,7 +120,7 @@ total(71) = total(71) + 1496*9.81; %APU
 total(37) = total(37) + 1037*9.81; %Elec 
 total(42) = total(42)+ 757.9*9.81; %anti icing
 
-
+%{
 figure;
 plot(xDiscr, total*-1, 'b-', 'LineWidth', 1.5);
 
@@ -128,6 +128,7 @@ xlabel('Fuselage Position (m)','FontWeight','bold');
 ylabel('Load (N/m)','FontWeight','bold');
 title('Inertial Loads');
 grid minor
+%}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           AIR LOAD PLOT
@@ -157,7 +158,7 @@ rhoC = 0.4592; % C cruise
 MAC = 8.75;
 Cm = -0.14;
 MoW = Cm*(0.5*rhoC*Vd^2*SrefWing*MAC);
-LHT = (-330800*9.81*(38.8831-30.86)+MoW)/(71.1-30.86);
+LHT = (-330800*9.81*(38.8831-30.86)+MoW)/(71.1-30.86)
 %disp("Lift Sam method: " + LHT)
 
 A = [ xPosFSW	xPosBSW ;
@@ -179,7 +180,7 @@ aerofuselageDisc(end+1) = xPosFST;
 aerofuselageDisc = sort(aerofuselageDisc);
 
 airXDiscr = xDiscr;
-aero = zeros(lTot);
+aero = zeros(lTot+1);
 aero(39) = forceRR; % back wing spar
 aero(31) = forceRF; %front wing spar
 aero(71) = LHT; % HT ac
@@ -235,12 +236,12 @@ grid minor
 totalInertialLoad = sum(total);
 
 for i = 1:length(total)
-    inertialMomentArray(i) = total(i)*i;
+    inertialMomentArray(i) = total(i)*(i);
 end
 
 inertialMoment = sum(inertialMomentArray);
 
-A = [ xPosFSW	xPosBSW ;
+A = [ 31	39 ;
         1	1];
 B = [inertialMoment; totalInertialLoad];
 
@@ -252,8 +253,10 @@ forceRRInert = X(2);
 MomentRFInert = forceRFInert*xPosFSW;
 MomentRRInert = forceRRInert*xPosBSW;
 
+
+
 SparReactInertLoadTot =  total*-1;
-SparReactInertLoadTot(31) = SparReactInertLoadTot(31) + forceRFInert*-1;
+SparReactInertLoadTot(31) = SparReactInertLoadTot(31) + forceRFInert;
 SparReactInertLoadTot(39) = SparReactInertLoadTot(39) + forceRRInert;
 
 SFInertial = [];
@@ -274,9 +277,6 @@ end
 %end
 
 
-
-
-
 figure;
 plot(xDiscr, SFInertial, 'b-', 'LineWidth', 1.5);
 xlabel('Fuselage Position (m)','FontWeight','bold');
@@ -285,7 +285,58 @@ title('Shear Force along Fuselage');
 grid minor
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          INERTIAL BENDING MOMENT PLOT 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+
+dBM = [];
+dBM(1) = 0;
+for i = 2:length(SFInertial)
+    dBM(i) = ((SFInertial(i-1)*(xDiscr(i)-xDiscr(i-1))+SFInertial(i)*(xDiscr(i)-xDiscr(i-1)))/2);
+end
+
+BM = [];
+BM(1) = dBM(1);
+for i = 2:length(dBM)
+    BM(i) = BM(i-1) + dBM(i);
+end
+
+BMInert = cumtrapz(SFInertial);
+
+figure;
+plot(xDiscr, BMInert, 'b-', 'LineWidth', 1.5);
+xlabel('Fuselage Position (m)','FontWeight','bold');
+ylabel('Bending Moment(Nm)','FontWeight','bold');
+title('Bending Moment along Fuselage');
+grid minor
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          AIR BENDING MOMENT PLOT 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+BMAero = cumtrapz(SFAero);
+
+figure;
+plot(xDiscr, BMAero, 'b-', 'LineWidth', 1.5);
+xlabel('Fuselage Position (m)','FontWeight','bold');
+ylabel('Bending Moment(Nm)','FontWeight','bold');
+title('Bending Moment along Fuselage');
+grid minor
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          AIR AND INERTIAL BENDING MOMENT PLOT 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+BMTot = BMAero+BMInert;
+
+plot(xDiscr, BMTot, 'b-', 'LineWidth', 1.5);
+xlabel('Fuselage Position (m)','FontWeight','bold');
+ylabel('Bending Moment(Nm)','FontWeight','bold');
+title('Bending Moment along Fuselage');
+grid minor
 
 
 

@@ -30,7 +30,7 @@ fuselagePoints = [];
 fuselageWeight = 29744*9.81;
 for i = 1:lTot
     fuselagePoints(i) = fuselageWeight/lTot;
-    xDiscr(i) = i;
+    xDiscr(i) = i-1;
 end
 
 payloadPoints = [];
@@ -253,8 +253,8 @@ MomentRFInert = forceRFInert*xPosFSW;
 MomentRRInert = forceRRInert*xPosBSW;
 
 SparReactInertLoadTot =  total*-1;
-SparReactInertLoadTot(31) = total(31) + forceRFInert;
-SparReactInertLoadTot(39) = total(39) + forceRRInert;
+SparReactInertLoadTot(31) = SparReactInertLoadTot(31) + forceRFInert*-1;
+SparReactInertLoadTot(39) = SparReactInertLoadTot(39) + forceRRInert;
 
 SFInertial = [];
 SFInertial(1) = SparReactInertLoadTot(1);
@@ -269,13 +269,14 @@ for i = 2:length(aero)
 end
 
 
-for i = 2:length(total)
-    SFAll(i) = SFInertial(i) + SFAero(i);
+%for i = 1:length(total)
+ %   SFAll(i) = SFInertial(i) + SFAero(i);
+%end
+
+for i = 2:length(aero)
+    dBM(i) = SFInertial(i-1)*(xDiscr(i)-xDiscr(i-1))+(SFInertial(i)*(xDiscr(i)-xDiscr(i-1)))/1
 end
 
-for i = :length(total)
-    SFAll(i) = SFInertial(i) + SFAero(i);
-end
 
 
 
