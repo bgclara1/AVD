@@ -1,8 +1,0 @@
-n = 3.75;
-W = 330800*9.81;
-Q = n*W;    %radial load
-r = 6.39; %check
-P = 0; %tangential load
-T = 0; %torque
-
-q = 
