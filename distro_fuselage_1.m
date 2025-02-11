@@ -196,7 +196,7 @@ LHT15 = (-330800*9.81*(38.8831-30.86)+MoW15)/(71.1-30.86);
 
 A = [ xPosFSW	xPosBSW ;
         1	1];
-B = [xPosFST*LHT_15*-1; LHT_15*-1];
+B = [xPosFST*LHT15*-1; LHT15*-1];
 
 X15 = linsolve(A,B);
 forceRF15 = X15(1);
@@ -228,35 +228,13 @@ ylabel('Load (N/m)','FontWeight','bold');
 title('Total Loads');
 %}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%           GEAR LOAD PLOT
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
-MTOW = 330800;
-MaxLandingMass = MTOW*0.85;
-landingLoad = 2.18*MaxLandingMass*9.81;
-GearReaction = landingLoad;
-
-gearXDiscr = xDiscr;
-gear = zeros(lTot);
-gear(39) = GearReaction; % back wing spar
-
-
-%{
-figure;
-plot(gearXDiscr, gear, 'b-', 'LineWidth', 1.5);
-xlabel('Fuselage Position (m)','FontWeight','bold');
-ylabel('Landing Gear Load (N/m)','FontWeight','bold');
-title('Gear Reaction Load');
-grid minor
-
-%}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           SHEAR FORCE PLOT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 
 totalInertialLoad = sum(total);
 
@@ -303,16 +281,50 @@ for i = 2:length(aero15)
 end
 
 
+OEI_Thrust = 290070; 
+OEI_Position = 41;   
+OEI_Force = 189800;
+OEI_Arm = 20.5;
+OEI_Moment = OEI_Force*OEI_Arm;
+
+A = [31 39; 
+     1  1]; 
+B = [inertialMoment + OEI_Moment; 
+     totalInertialLoad + OEI_Thrust];
+
+X = linsolve(A, B);
+forceRFInertOEI = X(1);
+forceRRInertOEI = X(2);
+
+SparReactInertLoadTot = total * -1; 
+
+SparReactInertLoadTot(31) = SparReactInertLoadTot(31) - forceRFInertOEI;
+SparReactInertLoadTot(39) = SparReactInertLoadTot(39) + forceRRInertOEI;
+
+SparReactInertLoadTot(OEI_Position) = SparReactInertLoadTot(OEI_Position) + OEI_Thrust;
+
+SF_OEI = [];
+SF_OEI(1) = SparReactInertLoadTot(1);
+for i = 2:length(SparReactInertLoadTot)
+    SF_OEI(i) = SF_OEI(i-1) + SparReactInertLoadTot(i);
+end
+
+
+
 
 figure;
 plot(xDiscr, SFInertial, 'LineWidth', 1.5);
 hold on;
-plot(xDiscr, SFaero15, 'LineWidth', 1.5);
-hold on;
-plot(xDiscr, SFAero, 'LineWidth', 1.5);
+%plot(xDiscr, SFaero15, 'LineWidth', 1.5);
+%hold on;
+%plot(xDiscr, SFAero, 'LineWidth', 1.5);
+%hold on;
+plot(xDiscr, SF_OEI, 'r-', 'LineWidth', 1.5); % OEI case
 xlabel('Fuselage Position (m)','FontWeight','bold');
 ylabel('Shear Force (N/m)','FontWeight','bold');
 title('Shear Force along Fuselage');
+%legend('Inertial', 'Aero -1.5', 'aero 3.75','OEI Case');
+legend('Inertial','OEI Case');
 grid minor
 
 %------------ both SF --------------------
@@ -382,6 +394,38 @@ xlabel('Fuselage Position (m)','FontWeight','bold');
 ylabel('Bending Moment(Nm)','FontWeight','bold');
 title('Bending Moment along Fuselage');
 grid minor
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%           GEAR LOAD PLOT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+MTOW = 330800;
+MaxLandingMass = MTOW*0.85;
+landingLoad = 2.18*MaxLandingMass*9.81;
+GearReaction = landingLoad;
+
+gearXDiscr = xDiscr;
+gear = zeros(lTot);
+gear(39) = GearReaction; % back wing spar
+
+  
+%{
+figure;
+plot(gearXDiscr, gear, 'b-', 'LineWidth', 1.5);
+xlabel('Fuselage Position (m)','FontWeight','bold');
+ylabel('Landing Gear Load (N/m)','FontWeight','bold');
+title('Gear Reaction Load');
+grid minor
+
+%}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          GEAR SHEAR FORCE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
 
 
 
