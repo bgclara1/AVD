@@ -203,9 +203,9 @@ forceRF15 = X15(1);
 forceRR15 = X15(2);
 
 aero15 = zeros(lTot+1);
-aero15(39) = forceRR15; % back wing spar
-aero15(31) = forceRF15; %front wing spar
-aero15(71) = LHT15; % HT ac
+aero15(39) = -forceRR15; % back wing spar
+aero15(31) = -forceRF15; %front wing spar
+aero15(71) = -LHT15; % HT ac
 aero15 = aero15(:,1);
 
 
@@ -259,7 +259,7 @@ MomentRRInert = forceRRInert*xPosBSW;
 
 
 SparReactInertLoadTot =  total*-1;
-SparReactInertLoadTot(31) = SparReactInertLoadTot(31) + forceRFInert;
+SparReactInertLoadTot(31) = SparReactInertLoadTot(31) - forceRFInert;
 SparReactInertLoadTot(39) = SparReactInertLoadTot(39) + forceRRInert;
 
 SFInertial = [];
@@ -274,12 +274,23 @@ for i = 2:length(aero)
     SFAero(i) = SFAero(i-1) + aero(i);
 end
 
+SF375 = [];
+SF375(1) = SFAero(1) + SFInertial(1);
+for i = 2:length(SFAero)
+    SF375(i) = SFAero(i) + SFInertial(i);
+end
+
 SFaero15 = [];
-SFaero15(i) = aero15(i);
+SFaero15(1) = aero15(1);
 for i = 2:length(aero15)
     SFaero15(i) = SFaero15(i-1) + aero15(i);
 end
 
+SF15 = [];
+SF15(1) = SFaero15(1) + SFInertial(1);
+for i = 2:length(SFaero15)
+    SF15(i) = SFaero15(i) + SFInertial(i);
+end
 
 OEI_Thrust = 290070; 
 OEI_Position = 41;   
@@ -290,7 +301,7 @@ OEI_Moment = OEI_Force*OEI_Arm;
 A = [31 39; 
      1  1]; 
 B = [inertialMoment + OEI_Moment; 
-     totalInertialLoad + OEI_Thrust];
+     totalInertialLoad + OEI_Thrust*3];
 
 X = linsolve(A, B);
 forceRFInertOEI = X(1);
@@ -299,7 +310,7 @@ forceRRInertOEI = X(2);
 SparReactInertLoadTot = total * -1; 
 
 SparReactInertLoadTot(31) = SparReactInertLoadTot(31) - forceRFInertOEI;
-SparReactInertLoadTot(39) = SparReactInertLoadTot(39) + forceRRInertOEI;
+SparReactInertLoadTot(39) = SparReactInertLoadTot(39) - forceRRInertOEI;
 
 SparReactInertLoadTot(OEI_Position) = SparReactInertLoadTot(OEI_Position) + OEI_Thrust;
 
@@ -309,22 +320,61 @@ for i = 2:length(SparReactInertLoadTot)
     SF_OEI(i) = SF_OEI(i-1) + SparReactInertLoadTot(i);
 end
 
+%---------------- Landing --------------------------
+    
+MaxLandingMassFrac = 0.85;
+MoW15 = 2.18*Cm*(0.5*rhoC*Va^2*SrefWing*MAC);
+LHTland = (MaxLandingMassFrac*-330800*9.81*(38.8831-30.86)+MoW15)/(71.1-30.86);
+
+A = [ xPosFSW	xPosBSW ;
+        1	1];
+B = [xPosFST*LHT15*-1; LHT15*-1];
+
+Xland = linsolve(A,B);
+forceRFland = Xland(1);
+forceRRland = Xland(2);
+
+aeroland = zeros(lTot+1);
+aeroland(39) = forceRR15; % back wing spar
+aeroland(31) = forceRF15; %front wing spar
+aeroland(71) = LHTland; % HT ac
+aeroland = aeroland(:,1);
+
+
+
+SFaeroland = [];
+SFaeroland(1) = aeroland(1);
+for i = 2:length(aeroland)
+    SFaeroland(i) = SFaeroland(i-1) + aeroland(i);
+end
+
+SFland = [];
+SFland(1) = SFaeroland(1) + SFInertial(1);
+for i = 2:length(SFaeroland)
+    SFland(i) = SFaeroland(i) + SFInertial(i);
+end
 
 
 
 figure;
 plot(xDiscr, SFInertial, 'LineWidth', 1.5);
-hold on;
+%hold on;
 %plot(xDiscr, SFaero15, 'LineWidth', 1.5);
 %hold on;
 %plot(xDiscr, SFAero, 'LineWidth', 1.5);
 %hold on;
-plot(xDiscr, SF_OEI, 'r-', 'LineWidth', 1.5); % OEI case
+%plot(xDiscr, SF_OEI, 'r-', 'LineWidth', 1.5); % OEI case
+hold on;
+plot(xDiscr, SF375, 'LineWidth', 1.5)
+hold on;
+plot(xDiscr, SF15, 'LineWidth', 1.5)
+hold on;
+plot(xDiscr, SFland, 'LineWidth', 1.5)
 xlabel('Fuselage Position (m)','FontWeight','bold');
 ylabel('Shear Force (N/m)','FontWeight','bold');
 title('Shear Force along Fuselage');
-%legend('Inertial', 'Aero -1.5', 'aero 3.75','OEI Case');
-legend('Inertial','OEI Case');
+legend('Inertial', 'Aero -1.5', 'aero 3.75','OEI Case', '3.75', '-1.5', 'landing');
+legend('Inertial',  '3.75', '-1.5', 'landing');
 grid minor
 
 %------------ both SF --------------------
@@ -421,16 +471,3 @@ title('Gear Reaction Load');
 grid minor
 
 %}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%          GEAR SHEAR FORCE
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-
-
-
-
-
-
-
-
