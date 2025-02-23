@@ -20,7 +20,7 @@ set(groot, 'defaultAxesFontName','Cambria Math')
 
 % ======== get air load plot ============================
 
-[xDiscr,aero] = getAirLoad();
+[xDiscr,aero,aero15] = getAirLoad();
 
 % ======== get air SF plot ==============================
 
@@ -28,13 +28,28 @@ getAirSF(xDiscr,aero)
 
 % ======= get fusealge SF plot ==========================
 
-getFuselageSF(xDiscr,inertialDistro)
+total = getFuselageSF(xDiscr,inertialDistro);
 
             % you get a bump at 31 that looks diff to reports but our aero
             % load is more disproportional so when u add it on it makes the
             % thing shoot above zero
 
-            
+
+SF_3_75 = getSF_3_75(xDiscr,aero,total)    %combines the air and fuselage SF at 3.75 loading
+
+SF_1_5 = getSF_1_5(xDiscr, aero15,total)
+
+SF_OEI = getOEI(xDiscr,total)
+
+plotFinalSF(xDiscr, SF_3_75, SF_1_5, SF_OEI)
+
+
+
+%getLandingSF(xDiscr, total)
+
+
+
+
 
 
 

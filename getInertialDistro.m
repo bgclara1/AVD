@@ -86,16 +86,17 @@ function [xDiscr,total] = getInertialDistro()
     
     
     total = [];
+
     for i = 1:lTot
         total(i) = fuselagePoints(i) + payloadPoints(i) + furnishingPoints(i) + fuelPoints(i);
     end
-    
-    %for i = 1:lTot
-     %   total(i) = fuselagePoints(i)
-    %end
-    
-    
-    
+    % 
+    % for i = 1:lTot
+    %     total(i) = fuselagePoints(i);
+    % end
+    % 
+    % 
+    % 
     total(75) = total(75) + 2998*9.81; %HT
     total(72) = total(72) + 1552.8*9.81; %VT
     total(2) = total(2) + 486.52*9.81; %nose landing gear
@@ -107,7 +108,8 @@ function [xDiscr,total] = getInertialDistro()
     total(42) = total(42)+ 757.9*9.81; %anti icing
     
     total = total*-1;
-    
+    total = total*9.81;
+
     figure
     plot(xDiscr, total, 'b-', 'LineWidth', 1.5);
     

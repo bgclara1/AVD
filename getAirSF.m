@@ -8,6 +8,7 @@ function getAirSF(xDiscr,aero)
 
     figure
     plot(xDiscr,aeroSF)
+    title('Aero Only SF')
 
 
 end

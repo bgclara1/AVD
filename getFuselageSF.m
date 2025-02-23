@@ -1,4 +1,4 @@
-function getFuselageSF(xDiscr,inertialDistro)
+function total = getFuselageSF(xDiscr,inertialDistro)
     
     inertialDistro = inertialDistro/9.81;
 
@@ -41,6 +41,7 @@ function getFuselageSF(xDiscr,inertialDistro)
 
     figure;
     plot(xDiscr, fuselageSF)
+    title('Fuselage Only SF')
 
 
 end

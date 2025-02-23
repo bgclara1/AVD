@@ -1,5 +1,5 @@
 
-function [xDiscr,Aero] = getAirLoad()
+function [xDiscr,aero,aero15] = getAirLoad()
 
     lTot = 79;
 
@@ -46,17 +46,36 @@ function [xDiscr,Aero] = getAirLoad()
     momentRF = forceRF*xPosFSW;
     momentRR = forceRR*xPosBSW;
 
-    clear Aero
-    Aero = zeros(1,79);
-    Aero(31) = forceRF;
-    Aero(39) = forceRR;
-    Aero(71) = LHT;
+    clear aero
+    aero = zeros(1,79);
+    aero(31) = forceRF;
+    aero(39) = forceRR;
+    aero(71) = LHT;
 
-    size(xDiscr);
-    size(Aero);
+    %------------ - 1.5 -------------------------------------
 
-    figure
-    bar(xDiscr,Aero);
+    
+    MoW15 = -1.5*Cm*(0.5*rhoC*Vd^2*SrefWing*MAC);
+    LHT15 = (-330800*9.81*(38.8831-30.86)+MoW15)/(71.1-30.86);
+    
+    A = [ xPosFSW	xPosBSW ;
+            1	1];
+    B = [xPosFST*LHT15; LHT15];
+    
+    X15 = linsolve(A,B);
+    forceRF15 = X15(1);
+    forceRR15 = X15(2);
+    
+    aero15 = zeros(1,79);
+    aero15(31) = forceRF15;
+    aero15(39) = forceRR15;
+    aero15(71) = LHT*-1;
+
+    figure;
+    bar(xDiscr,aero);
+    hold on;
+    bar(xDiscr,aero15);
+
 
 end
 
