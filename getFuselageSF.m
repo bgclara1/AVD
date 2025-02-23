@@ -1,4 +1,4 @@
-function total = getFuselageSF(xDiscr,inertialDistro)
+function [fuselageSF,total] = getFuselageSF(xDiscr,inertialDistro)
     
     inertialDistro = inertialDistro/9.81;
 
@@ -26,7 +26,7 @@ function total = getFuselageSF(xDiscr,inertialDistro)
 
     inertialDistro = inertialDistro*9.81;
     
-    sparReaction = zeros(1,79);
+    sparReaction = zeros(1,80);
     sparReaction(31) = forceRF*9.81*-1;
     sparReaction(39) = forceRR*9.81*-1;
 
@@ -39,9 +39,9 @@ function total = getFuselageSF(xDiscr,inertialDistro)
         fuselageSF(i) = fuselageSF(i-1) + total(i);
     end
 
-    figure;
-    plot(xDiscr, fuselageSF)
-    title('Fuselage Only SF')
+    % figure;
+    % plot(xDiscr, fuselageSF)
+    % title('Fuselage Only SF')
 
 
 end

@@ -4,7 +4,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function [total] = getInertialDistro()
+function InertialLoads = getInertialDistro()
     lTot = 80;
     DiscInterval = 5;
     fuselageDisc = 0:DiscInterval:lTot;
@@ -109,15 +109,15 @@ function [total] = getInertialDistro()
     
     total = total*-1;
     total = total*9.81;
-
-    figure
-    plot(xDiscr, total, 'b-', 'LineWidth', 1.5);
-    
-    xlabel('Fuselage Position (m)','FontWeight','bold');
-    ylabel('Load (N/m)','FontWeight','bold');
-    title('Inertial Loads');
-    grid minor
- 
+    InertialLoads = total;
+    % 
+    % figure
+    % plot(xDiscr, total, 'b-', 'LineWidth', 1.5);
+    % xlabel('Fuselage Position (m)','FontWeight','bold');
+    % ylabel('Load (N/m)','FontWeight','bold');
+    % title('Inertial Loads');
+    % grid minor
+    % 
 
 end
 

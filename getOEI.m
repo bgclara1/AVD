@@ -50,7 +50,7 @@ function SF_OEI = getOEI(xDiscr, total)
         SF_OEI(i) = SF_OEI(i-1) + SparReactInertLoadTot(i);
     end
 
-    figure
-    plot(xDiscr, SF_OEI)
+    % figure
+    % plot(xDiscr, SF_OEI)
 
 end

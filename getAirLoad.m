@@ -1,7 +1,7 @@
 
 function [xDiscr,aero,aero15] = getAirLoad()
 
-    lTot = 79;
+    lTot = 80;
 
     for i = 1:lTot
         xDiscr(i) = i-1;
@@ -47,7 +47,7 @@ function [xDiscr,aero,aero15] = getAirLoad()
     momentRR = forceRR*xPosBSW;
 
     clear aero
-    aero = zeros(1,79);
+    aero = zeros(1,80);
     aero(31) = forceRF;
     aero(39) = forceRR;
     aero(71) = LHT;
@@ -66,15 +66,15 @@ function [xDiscr,aero,aero15] = getAirLoad()
     forceRF15 = X15(1);
     forceRR15 = X15(2);
     
-    aero15 = zeros(1,79);
+    aero15 = zeros(1,80);
     aero15(31) = forceRF15;
     aero15(39) = forceRR15;
     aero15(71) = LHT*-1;
-
-    figure;
-    bar(xDiscr,aero);
-    hold on;
-    bar(xDiscr,aero15);
+    % 
+    % figure;
+    % bar(xDiscr,aero);
+    % hold on;
+    % bar(xDiscr,aero15);
 
 
 end

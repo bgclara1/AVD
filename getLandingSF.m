@@ -26,7 +26,7 @@ function SFland = getLandingSF(xDiscr, total)
     forceRFland = Xland(1);
     forceRRland = Xland(2);
     
-    aeroland = zeros(1,79);
+    aeroland = zeros(1,80);
     aeroland(39) = forceRRland; % back wing spar
     aeroland(31) = forceRFland; %front wing spar
     aeroland(71) = LHTland; % HT ac
@@ -39,6 +39,6 @@ function SFland = getLandingSF(xDiscr, total)
         SFland(i) = SFland(i-1) + aeroland(i) + total(i);
     end
 
-    figure;
-    plot(xDiscr,SFland)
+    % figure;
+    % plot(xDiscr,SFland)
 end
