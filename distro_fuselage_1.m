@@ -313,6 +313,8 @@ Diam = 6.485;
 wing_offset = 1.36;
 d_wing_MAC = d_MAC + Diam/2 + wing_offset;
 
+OEI_Force = 1.8979*1e+5;
+
 OEI_Moment = d_wing_MAC * OEI_Force;
 SemiSpan = 32.5;
 
@@ -335,7 +337,7 @@ SparReactInertLoadTot = total * -1;
 SparReactInertLoadTot(31) = SparReactInertLoadTot(31) - forceRFInertOEI;
 SparReactInertLoadTot(39) = SparReactInertLoadTot(39) - forceRRInertOEI;
 
-SparReactInertLoadTot(OEI_Position) = SparReactInertLoadTot(OEI_Position) + OEI_Thrust;
+%SparReactInertLoadTot(OEI_Position) = SparReactInertLoadTot(OEI_Position) + OEI_Thrust;
 
 SF_OEI = [];
 SF_OEI(1) = SparReactInertLoadTot(1);
@@ -434,14 +436,14 @@ for i = 2:length(dBM)
 end
 
 BMInert = cumtrapz(SFInertial);
-%{
+
 figure;
-plot(xDiscr, BMInert, 'b-', 'LineWidth', 1.5);
+plot(xDiscr, BM, 'b-', 'LineWidth', 1.5);
 xlabel('Fuselage Position (m)','FontWeight','bold');
 ylabel('Bending Moment(Nm)','FontWeight','bold');
 title('Bending Moment along Fuselage');
 grid minor
-%}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %          AIR BENDING MOMENT PLOT 
