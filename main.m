@@ -2,8 +2,6 @@ close all;
 
 % ======== set default params for plotting ================
 
-close all;
-
 set(0,'defaultfigurecolor',[1 1 1])
 set(groot,'defaultAxesFontSize',15)
 set(groot,'defaulttextfontsize',15)
@@ -127,7 +125,7 @@ BM_land = cumtrapz(SFland);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
-%                           S S O
+%                      STRINGER SKIN
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -139,61 +137,104 @@ BM_land = cumtrapz(SFland);
             StringerArea = 0.005;
             tensileYieldStress = 324*1e6;
             E = 73e9;              
-            L_eff = 0.5;          
+            L_eff = 1;          
             b = 0.02;             
             h = 0.05;             
             A_str = StringerArea;  
-
+            Ks = 5;           %buckling coeff
+            nu = 0.33;        %poisson
+            
 % -----------------------------------------------------------------
 
 
 % Shear Flow plot
-[theta, PlotSFlow, circle, skinThickness] = plotShearFlow(shearYieldStress);
+[theta, PlotSFlow, circle, skinThickness, totalSFlow] = plotShearFlow(shearYieldStress);
 
-                figure;
-                polarplot(theta,PlotSFlow,'b-','LineWidth', 3)
-                hold on;
-                polarplot(theta,circle,'r-', 'LineWidth', 2)
-                ax = gca; 
-                ax.ThetaZeroLocation = 'top';
-                ax.ThetaDir = 'clockwise';
-                title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
-                grid on;
-                legend('Shear Flow', 'Fuselage', 'Location', 'best');
+                % figure;
+                % polarplot(theta,PlotSFlow,'b-','LineWidth', 3)
+                % hold on;
+                % polarplot(theta,circle,'r-', 'LineWidth', 2)
+                % ax = gca; 
+                % ax.ThetaZeroLocation = 'top';
+                % ax.ThetaDir = 'clockwise';
+                % title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
+                % grid on;
+                % legend('Shear Flow', 'Fuselage', 'Location', 'best');
                     
 % Stringer Diagram
 [x,y,numStringers] = stringerPlot(StringerSpacing);
 
-                figure;
-                scatter(x, y, 'filled');
-                grid on;
-                axis equal; 
-                margin = 0.3 * max(abs([x, y])); 
-                xlim([-max(abs(x)) - margin, max(abs(x)) + margin]);
-                ylim([-max(abs(y)) - margin, max(abs(y)) + margin]);
-                xlabel('X-axis', 'FontSize', 12, 'FontWeight', 'bold');
-                ylabel('Y-axis', 'FontSize', 12, 'FontWeight', 'bold');
-                title('Stringer Positions Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
+                % figure;
+                % scatter(x, y, 'filled');
+                % grid on;
+                % axis equal; 
+                % margin = 0.3 * max(abs([x, y])); 
+                % xlim([-max(abs(x)) - margin, max(abs(x)) + margin]);
+                % ylim([-max(abs(y)) - margin, max(abs(y)) + margin]);
+                % xlabel('X-axis', 'FontSize', 12, 'FontWeight', 'bold');
+                % ylabel('Y-axis', 'FontSize', 12, 'FontWeight', 'bold');
+                % title('Stringer Positions Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
 
 % Direct stress plot
 directStress = stressPlot(skinThickness,StringerArea,y,numStringers,density);
             
-                figure;
-                hold on;
-                grid on;
-                plot3(x, y, zeros(size(x)), 'r-', 'LineWidth', 2);
-                quiver3(x, y, zeros(size(x)), zeros(size(x)), zeros(size(x)), directStress, 'b', 'LineWidth', 1.5, 'MaxHeadSize', 0.5);
-                xlabel('z');
-                ylabel('y');
-                zlabel('Direct stress \sigma_z (MPa)');
-                title('Direct stress distribution around fuselage');
-                view(3);
-                legend('Fuselage cross-section', 'Direct stress at each stringer');
-                axis equal;
+                % figure;
+                % hold on;
+                % grid on;
+                % plot3(x, y, zeros(size(x)), 'r-', 'LineWidth', 2);
+                % quiver3(x, y, zeros(size(x)), zeros(size(x)), zeros(size(x)), directStress, 'b', 'LineWidth', 1.5, 'MaxHeadSize', 0.5);
+                % xlabel('z');
+                % ylabel('y');
+                % zlabel('Direct stress \sigma_z (MPa)');
+                % title('Direct stress distribution around fuselage');
+                % view(3);
+                % legend('Fuselage cross-section', 'Direct stress at each stringer');
+                % axis equal;
+
+%skinThickness = 0.01; %important var for skin bay buckling
 
 % structural compliance
-stressCompliant = checkYieldStress(directStress,tensileYieldStress); % 1 true, 0 false
-eulerCompliant = checkEulerBuckling(directStress, E, b, h, A_str, L_eff);
+[stringerStressCompliant,stringerEulerCompliant] = checkStringer(directStress, tensileYieldStress,E, b, h, A_str, L_eff);
+[skinYieldCompliant, skinBucklingCompliant] = checkSkinBay(totalSFlow, skinThickness, StringerSpacing, shearYieldStress, Ks, E, nu);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+%                      PRESSURE LOAD
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% -------------- pressure variables -------------------------------
+
+            D = 6.485;
+            r = D/2;
+            cabinPressure = 50507.26;
+            atmosphericPressure = 0.1013*1e6;
+            pressureLoad = (atmosphericPressure-cabinPressure)*1e-5;
+
+% -----------------------------------------------------------------
+
+% fuselage component stresses
+[hoopStress, longitudinalStress, sphericalStress] = pressureStresses(D, skinThickness,pressureLoad,atmosphericPressure);
+
+% pressure thickness requirements
+[skinThicknessPressure,domeThickness] = pressureThicknesses(D,pressureLoad,atmosphericPressure,tensileYieldStress, nu);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

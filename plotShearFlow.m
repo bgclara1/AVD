@@ -1,4 +1,4 @@
-function [theta, PlotSFlow, circle, skinThickness] = plotShearFlow(shearYieldStress)
+function [theta, PlotSFlow, circle, skinThickness,totalSFlow] = plotShearFlow(shearYieldStress)
 
 
     n = 3.75;
