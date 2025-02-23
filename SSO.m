@@ -39,7 +39,7 @@ for i = 1:length(circle)
     end 
 end
 
-%{
+
 figure;
 polarplot(theta,PlotSFlow,'b-','LineWidth', 3)
 hold on;
@@ -50,7 +50,7 @@ ax.ThetaDir = 'clockwise';
 title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
 grid on;
 legend('Shear Flow', 'Fuselage', 'Location', 'best');
-%}
+
 
 maxTotSF = max(abs(totalSFlow));
 shearYieldStress = 187.06*1e+06; %    CHANGE
@@ -117,4 +117,5 @@ title('Direct stress distribution around fuselage');
 view(3);
 legend('Fuselage cross-section', 'Direct stress at each stringer');
 axis equal;
+
 

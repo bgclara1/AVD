@@ -1,3 +1,5 @@
+close all;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %            SET DEFAULT PLOTTING PARAMETERS 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -120,7 +122,7 @@ total(71) = total(71) + 1496*9.81; %APU
 total(37) = total(37) + 1037*9.81; %Elec 
 total(42) = total(42)+ 757.9*9.81; %anti icing
 
-%{
+
 figure;
 plot(xDiscr, total*-1, 'b-', 'LineWidth', 1.5);
 
@@ -128,12 +130,11 @@ xlabel('Fuselage Position (m)','FontWeight','bold');
 ylabel('Load (N/m)','FontWeight','bold');
 title('Inertial Loads');
 grid minor
-%}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           AIR LOAD PLOT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 lTot = 79;
 Sref = 115.1508; %HT
@@ -160,7 +161,7 @@ Cm = -0.14;
 
 %------------------- 3.75 --------------------------------
 MoW = 3.75*Cm*(0.5*rhoC*Vd^2*SrefWing*MAC);
-LHT = (-330800*9.81*(38.8831-30.86)+MoW)/(71.1-30.86);
+LHT = (-330800*9.81*(38.8831-30.86)+MoW)/(71.1-30.86)
 
 A = [ xPosFSW	xPosBSW ;
         1	1];
@@ -168,8 +169,9 @@ B = [xPosFST*LHT*-1; LHT*-1];
 
 
 X = linsolve(A,B);
-forceRF = X(1);
-forceRR = X(2);
+forceRF = X(1)
+forceRR = X(2)
+
 
 
 aero =[];
@@ -186,6 +188,10 @@ aero(39) = forceRR; % back wing spar
 aero(31) = forceRF; %front wing spar
 aero(71) = LHT; % HT ac
 aero = aero(:,1);
+
+
+
+
 
 %-----------------------------------------------------
 
@@ -226,8 +232,8 @@ xlabel('Fuselage Position (m)','FontWeight','bold');
 ylabel('Load (N/m)','FontWeight','bold');
 
 title('Total Loads');
-%}
 
+%}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -255,8 +261,6 @@ forceRRInert = X(2);
 
 MomentRFInert = forceRFInert*xPosFSW;
 MomentRRInert = forceRRInert*xPosBSW;
-
-
 
 SparReactInertLoadTot =  total*-1;
 SparReactInertLoadTot(31) = SparReactInertLoadTot(31) - forceRFInert;
@@ -292,16 +296,35 @@ for i = 2:length(SFaero15)
     SF15(i) = SFaero15(i) + SFInertial(i);
 end
 
-OEI_Thrust = 290070; 
-OEI_Position = 41;   
-OEI_Force = 189800;
-OEI_Arm = 20.5;
-OEI_Moment = OEI_Force*OEI_Arm;
 
-A = [31 39; 
+%============= OEI =========================
+
+RC = 8.05; 
+TC = 0.3 * RC;
+MAC = (2/3) * ((RC + TC) - ((RC * TC) / (RC + TC)))
+
+RC = 8.05;
+TC = 0.3 * RC; 
+Span = 11.26; 
+
+MAC = (2/3) * ((RC + TC) - ((RC * TC) / (RC + TC)));
+d_MAC = (Span / 3) * ((RC + 2 * TC) / (RC + TC));
+Diam = 6.485;
+wing_offset = 1.36;
+d_wing_MAC = d_MAC + Diam/2 + wing_offset;
+
+OEI_Moment = d_wing_MAC * OEI_Force;
+SemiSpan = 32.5;
+
+OEI_Aileron = OEI_Moment/(SemiSpan/2);
+
+
+
+%OEI_Moment = OEI_Force*OEI_Arm;
+
+A = [xPosFSW xPosBSW; 
      1  1]; 
-B = [inertialMoment + OEI_Moment; 
-     totalInertialLoad + OEI_Thrust*3];
+B = [OEI_Moment; OEI_Aileron];
 
 X = linsolve(A, B);
 forceRFInertOEI = X(1);
@@ -358,12 +381,12 @@ end
 
 figure;
 plot(xDiscr, SFInertial, 'LineWidth', 1.5);
-%hold on;
-%plot(xDiscr, SFaero15, 'LineWidth', 1.5);
-%hold on;
-%plot(xDiscr, SFAero, 'LineWidth', 1.5);
-%hold on;
-%plot(xDiscr, SF_OEI, 'r-', 'LineWidth', 1.5); % OEI case
+hold on;
+plot(xDiscr, SFaero15, 'LineWidth', 1.5);
+hold on;
+plot(xDiscr, SFAero, 'LineWidth', 1.5);
+hold on;
+plot(xDiscr, SF_OEI, 'r-', 'LineWidth', 1.5); % OEI case
 hold on;
 plot(xDiscr, SF375, 'LineWidth', 1.5)
 hold on;
@@ -374,14 +397,14 @@ xlabel('Fuselage Position (m)','FontWeight','bold');
 ylabel('Shear Force (N/m)','FontWeight','bold');
 title('Shear Force along Fuselage');
 legend('Inertial', 'Aero -1.5', 'aero 3.75','OEI Case', '3.75', '-1.5', 'landing');
-legend('Inertial',  '3.75', '-1.5', 'landing');
+%legend('Inertial',  '3.75', '-1.5', 'landing');
 grid minor
 
 %------------ both SF --------------------
 
 SFTot375 = SFAero+SFInertial;
 SFTot15 = SFaero15+SFInertial;
-
+%{
 figure;
 plot(xDiscr, SFTot375, 'LineWidth', 1.5);
 hold on;
@@ -391,7 +414,7 @@ ylabel('Shear Force (N/m)','FontWeight','bold');
 title('Shear Force along Fuselage');
 grid minor
 
-
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %          INERTIAL BENDING MOMENT PLOT 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -411,40 +434,40 @@ for i = 2:length(dBM)
 end
 
 BMInert = cumtrapz(SFInertial);
-
+%{
 figure;
 plot(xDiscr, BMInert, 'b-', 'LineWidth', 1.5);
 xlabel('Fuselage Position (m)','FontWeight','bold');
 ylabel('Bending Moment(Nm)','FontWeight','bold');
 title('Bending Moment along Fuselage');
 grid minor
-
+%}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %          AIR BENDING MOMENT PLOT 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 BMAero = cumtrapz(SFAero);
-
+%{
 figure;
 plot(xDiscr, BMAero, 'b-', 'LineWidth', 1.5);
 xlabel('Fuselage Position (m)','FontWeight','bold');
 ylabel('Bending Moment(Nm)','FontWeight','bold');
 title('Bending Moment along Fuselage');
 grid minor
-
+%}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %          AIR AND INERTIAL BENDING MOMENT PLOT 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 BMTot = BMAero+BMInert;
-
+%{
 plot(xDiscr, BMTot, 'b-', 'LineWidth', 1.5);
 xlabel('Fuselage Position (m)','FontWeight','bold');
 ylabel('Bending Moment(Nm)','FontWeight','bold');
 title('Bending Moment along Fuselage');
 grid minor
-
+%}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %           GEAR LOAD PLOT
@@ -471,3 +494,9 @@ title('Gear Reaction Load');
 grid minor
 
 %}
+
+
+
+
+
+
