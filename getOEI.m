@@ -42,7 +42,7 @@ function SF_OEI = getOEI(xDiscr, total)
     SparReactInertLoadTot(31) = SparReactInertLoadTot(31) - forceRFInertOEI;
     SparReactInertLoadTot(39) = SparReactInertLoadTot(39) - forceRRInertOEI;
     
- %   SparReactInertLoadTot(OEI_Position) = SparReactInertLoadTot(OEI_Position) + OEI_Thrust;
+   % SparReactInertLoadTot(OEI_Position) = SparReactInertLoadTot(OEI_Position) + OEI_Thrust;
     
     SF_OEI = [];
     SF_OEI(1) = SparReactInertLoadTot(1);

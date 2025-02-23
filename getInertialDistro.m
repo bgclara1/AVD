@@ -4,7 +4,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function [xDiscr,total] = getInertialDistro()
+function [total] = getInertialDistro()
     lTot = 80;
     DiscInterval = 5;
     fuselageDisc = 0:DiscInterval:lTot;

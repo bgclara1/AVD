@@ -16,38 +16,45 @@ set(groot, 'defaultAxesFontName','Cambria Math')
 
 % ======== get inertial distrobution ====================
 
-[xDiscr,inertialDistro] = getInertialDistro();
+[inertialDistro] = getInertialDistro();
 
 % ======== get air load plot ============================
 
 [xDiscr,aero,aero15] = getAirLoad();
 
-% ======== get air SF plot ==============================
 
-getAirSF(xDiscr,aero)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+%                           SF PLOTS 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% ======= get fusealge SF plot ==========================
+%  get air SF plot 
+getAirSF(xDiscr,aero);
 
+% get fusealge SF plot
 total = getFuselageSF(xDiscr,inertialDistro);
-
             % you get a bump at 31 that looks diff to reports but our aero
             % load is more disproportional so when u add it on it makes the
             % thing shoot above zero
 
+% n = 3.75 SF plot
+SF_3_75 = getSF_3_75(xDiscr,aero,total) ;   %combines the air and fuselage SF at 3.75 loading
 
-SF_3_75 = getSF_3_75(xDiscr,aero,total)    %combines the air and fuselage SF at 3.75 loading
+% n = -1.5 SF plot
+SF_1_5 = getSF_1_5(xDiscr, aero15,total);
 
-SF_1_5 = getSF_1_5(xDiscr, aero15,total)
+% OEI SF plot 
+SF_OEI = getOEI(xDiscr,total);
 
-SF_OEI = getOEI(xDiscr,total)
+% Landing SF plot 
+SFland = getLandingSF(xDiscr, total);
 
-plotFinalSF(xDiscr, SF_3_75, SF_1_5, SF_OEI)
-
-
-
-%getLandingSF(xDiscr, total)
+% Total SF plot
+plotFinalSF(xDiscr, SF_3_75, SF_1_5, SF_OEI,SFland);
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+%                           BENDING PLOTS 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
