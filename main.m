@@ -45,18 +45,18 @@ SF_OEI = getOEI(xDiscr,total);
 % Landing SF plot 
 SFland = getLandingSF(xDiscr, total);
 
-% Total SF plot
-%plotFinalSF(xDiscr, SF_3_75, SF_1_5, SF_OEI,SFland);
+%Total SF plot
+plotFinalSF(xDiscr, SF_3_75, SF_1_5, SF_OEI,SFland);
 
 
 %------------- Plots --------------------------------
        
-                    % 
-                    % 
+
+
                     % figure;
                     % plot(xDiscr, InertialLoads)
                     % title('Inertial Loads')
-% 
+                    % 
                     % figure;
                     % bar(xDiscr, aero)
                     % hold on;
@@ -70,7 +70,7 @@ SFland = getLandingSF(xDiscr, total);
                     % figure;
                     % plot(xDiscr, fuselageSF)
                     % title('Fuselage Only SF')
-                    %
+                    % 
                     % figure;
                     % plot(xDiscr, SF_3_75)
                     % title('Aero SF at load factor 3.75')
@@ -97,7 +97,7 @@ SFland = getLandingSF(xDiscr, total);
                     % plot(xDiscr, SFland)
                     % title('SF Plot')
                     % legend('n=3.75','OEI', 'landing')
-                    % 
+
 
 
 
@@ -110,7 +110,7 @@ BMInert = cumtrapz(fuselageSF);
 BM_3_75 = cumtrapz(SF_3_75);
 BM_OEI = cumtrapz(SF_OEI);
 BM_land = cumtrapz(SFland);
-% 
+
 % figure;
 %                     plot(xDiscr, BM_3_75)
 %                     %hold on;
@@ -121,7 +121,7 @@ BM_land = cumtrapz(SFland);
 %                     plot(xDiscr, BM_land)
 %                     title('BM Plot')
 %                     legend('n=3.75','OEI', 'landing')
-
+% 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
@@ -205,12 +205,12 @@ stringerArea = ZStringerArea(stringerThickness, h, L); % h height, L flange leng
                 % title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
                 % grid on;
                 % legend('Shear Flow', 'Fuselage', 'Location', 'best');
-                % 
+
 
 
 % Stringer Diagram
 [x,y,numStringers] = stringerPlot(StringerSpacing);
-
+                % 
                 % figure;
                 % scatter(x, y, 'filled');
                 % grid on;
@@ -273,47 +273,51 @@ structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, sk
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
 %                      LIGHT FRAMES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % --------- FRAME GEOMETRIC AND MATERIAL PARAMETERS -----------------
+
                     E = 7.3*1e9;
                     D = 6.485;
                     L = 0.5; %changes?
                     C_f = 6.25*1e-5;
                     h = 0.05; %changes?
                     M_ult = max(abs(BM_3_75));
+
 % ---------- FRAME STRUCTURAL PROPERTIES -----------------------------
+
                     EI = C_f*M_ult*D^2/L;
                     I = EI/E;
                     I_xx = I;
                     b = I*12/h^3;
                     A = b*h;
 
-                    bRange = 0.01:0.001:0.06;
-                    hRange = 0.05:0.001:0.12;
+                    bRange = 0.005:0.001:0.06;
+                    hRange = 0.03:0.001:0.1;
 
 frameThicknessMatrix = frameThickness(I_xx,bRange,hRange);
 frameAreaMatrix = frameArea(frameThicknessMatrix,bRange,hRange);
 
-% [bGrid, hGrid] = meshgrid(bRange, hRange);
-% 
-% figure;
-% surf(bGrid, hGrid, frameThicknessMatrix', 'EdgeColor', 'none'); % Note the transpose
-% xlabel('Flange Width b (m)');
-% ylabel('Web Height h (m)');
-% zlabel('Frame Thickness t_f (m)');
-% title('Frame Thickness with Constant I_{xx}');
-% colorbar;
-% grid on;
-% 
-% 
-% % 3D Plot for frame area
-% figure;
-% surf(bGrid, hGrid, frameAreaMatrix', 'EdgeColor', 'none');
-% xlabel('Flange Width b (m)');
-% ylabel('Web Height h (m)');
-% zlabel('Frame Area A (m^2)');
-% title('Frame Area with Constant I_{xx}');
-% colorbar;
-% grid on;
+[bGrid, hGrid] = meshgrid(bRange, hRange);
+
+figure;
+surf(bGrid, hGrid, frameThicknessMatrix', 'EdgeColor', 'none'); % Note the transpose
+xlabel('Flange Width b (m)');
+ylabel('Web Height h (m)');
+zlabel('Frame Thickness t_f (m)');
+title('Frame Thickness with Constant I_{xx}');
+colorbar;
+grid on;
+
+
+% 3D Plot for frame area
+figure;
+surf(bGrid, hGrid, frameAreaMatrix', 'EdgeColor', 'none');
+xlabel('Flange Width b (m)');
+ylabel('Web Height h (m)');
+zlabel('Frame Area A (m^2)');
+title('Frame Area with Constant I_{xx}');
+colorbar;
+grid on;
 
 % optimal light frame dimensions
 [minArea, idx] = min(frameAreaMatrix(:));
@@ -321,6 +325,45 @@ frameAreaMatrix = frameArea(frameThicknessMatrix,bRange,hRange);
 optimal_b = bRange(row);
 optimal_h = hRange(col);
 optimal_thickness = frameThicknessMatrix(row, col);
+
+% CONSIDER DOING BUCKLING ANALYSIS
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+%                      HEAVY FRAMES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% ---------- FRAME STRUCTURAL PROPERTIES -----------------------------
+           
+                    b = 0.02;
+                    h = 0.1;
+                    A = b*h;
+                    y_c = h/2;
+                    I_f = b*h^3/12;
+
+
+angle = pi*(0:10:360)/180;
+
+tanLoad = 1.00E+06; %CHANGE
+
+for i = 1:length(angle)
+    N(i) = tanLoad/(2*pi) * ((pi-angle(i))*cos(angle(i))-0.5*sin(angle(i)));
+    S(i) = (tanLoad/(2*pi))*(1+0.5*cos(angle(i))-(pi-angle(i))*sin(angle(i)));
+    M(i) = (tanLoad*D)/(4*pi)*(pi-angle(i))*(1-cos(angle(i)))-1.5*sin(angle(i));
+end
+
+
+figure;
+plot(angle,N);
+hold on;
+plot(angle,S);
+hold on;
+plot(angle,M);
+xlabel('Angle (rad)')
+ylabel('Load (N)')
+legend('N','S','M')
+
+
 
 
 
