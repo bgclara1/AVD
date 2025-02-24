@@ -6,12 +6,7 @@
 
 function InertialLoads = getInertialDistro()
     lTot = 80;
-    DiscInterval = 5;
-    fuselageDisc = 0:DiscInterval:lTot;
-    cabinLow = 6.23;
-    cabinHigh = 60.48;
-    numberOfPoints = lTot/DiscInterval;
-    
+
     fuselagePoints = [];
     fuselageWeight = 29744*9.81;
     for i = 1:lTot
@@ -28,7 +23,7 @@ function InertialLoads = getInertialDistro()
         elseif i>=61 
             payloadPoints(i) = 0;
         else 
-            payloadPoints(i) = payloadWeight/lTot;
+            payloadPoints(i) = payloadWeight/55;
         end
     end
     
@@ -42,7 +37,7 @@ function InertialLoads = getInertialDistro()
         elseif i>=61 
             furnishingPoints(i) = 0;
         else 
-            furnishingPoints(i) = furnishingWeight/lTot;
+            furnishingPoints(i) = furnishingWeight/55;
         end
     end
     
@@ -55,36 +50,36 @@ function InertialLoads = getInertialDistro()
         elseif i>=39 
             fuelPoints(i) = 0;
         else 
-            fuelPoints(i) = fuelWeight/lTot;
+            fuelPoints(i) = fuelWeight/8;
         end
     end
-    
-    components = {
-        "Horizontal Tailplane", 2998, 75;
-        "Vertical Tailplane", 1552.8, 72;
-        "Nose Landing Gear", 486.52, 2;
-        "Fuel Systems", 936, 46;
-        "Flight Controls", 927, 47;
-        "Installed APU", 1496, 71;
-        "Instruments", 796.77, 3;
-        "Hydraulic System", 271.9, 46;
-        "Electronic System", 1037, 37;
-        "Avionics", 697.64, 3;
-        "Air Conditioning", 3593, 33; 
-        "Anti Icing System", 757.9, 42;
-        "Handling Gear", 113.3685, 33;
-    };
-    
-    for i = 1:size(components)
-        weights(i) = components{i, 2} * 9.81; % Mass (kg) * 9.81 to get weight (N)
-        positions(i) = components{i, 3};      % x_cg position (m)
-    end
-    
-    [uniquePositions, ~, idx] = unique(positions); % Unique positions and their indices
-    aggregatedWeights = accumarray(idx, weights); % Sum weights for each unique position
-    
-    
-    
+    % 
+    % components = {
+    %     "Horizontal Tailplane", 2998, 75;
+    %     "Vertical Tailplane", 1552.8, 72;
+    %     "Nose Landing Gear", 486.52, 2;
+    %     "Fuel Systems", 936, 46;
+    %     "Flight Controls", 927, 47;
+    %     "Installed APU", 1496, 71;
+    %     "Instruments", 796.77, 3;
+    %     "Hydraulic System", 271.9, 46;
+    %     "Electronic System", 1037, 37;
+    %     "Avionics", 697.64, 3;
+    %     "Air Conditioning", 3593, 33; 
+    %     "Anti Icing System", 757.9, 42;
+    %     "Handling Gear", 113.3685, 33;
+    % };
+    % 
+    % for i = 1:size(components)
+    %     weights(i) = components{i, 2} * 9.81; % Mass (kg) * 9.81 to get weight (N)
+    %     positions(i) = components{i, 3};      % x_cg position (m)
+    % end
+    % 
+    % [uniquePositions, ~, idx] = unique(positions); % Unique positions and their indices
+    % aggregatedWeights = accumarray(idx, weights); % Sum weights for each unique position
+    % 
+    % 
+    % 
     total = [];
 
     for i = 1:lTot
@@ -108,7 +103,6 @@ function InertialLoads = getInertialDistro()
     total(42) = total(42)+ 757.9*9.81; %anti icing
     
     total = total*-1;
-    total = total*9.81;
     InertialLoads = total;
     % 
     % figure
@@ -117,7 +111,9 @@ function InertialLoads = getInertialDistro()
     % ylabel('Load (N/m)','FontWeight','bold');
     % title('Inertial Loads');
     % grid minor
-    % 
+    
+
+
 
 end
 

@@ -1,8 +1,9 @@
-function SF_3_75 = getSF_3_75(xDiscr,aero,total)
+function SF_3_75 = getSF_3_75(total)
 
     SF_3_75 = total(1);
     for i = (2:length(total))
-        SF_3_75(i) = SF_3_75(i-1) + aero(i) + total(i);
+        %SF_3_75(i) = SF_3_75(i-1) + aero(i) + total(i);
+       SF_3_75(i) = SF_3_75(i-1) + total(i);
     end
 
     % figure;

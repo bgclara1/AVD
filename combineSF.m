@@ -1,11 +1,10 @@
-function [fuselageSF,total] = getFuselageSF(xDiscr,inertialDistro)
-    
-    inertialDistro = inertialDistro; 
+function [total,comboSF] = combineSF(xDiscr,InertialLoads,aero)
 
-    totalLoad = sum(inertialDistro);
+   
+    totalLoad = sum(InertialLoads)+sum(aero);
 
     for i = 1:length(xDiscr)
-        inertialMoments(i) = inertialDistro(i) * xDiscr(i);
+        inertialMoments(i) = (InertialLoads(i)+aero(i)) * xDiscr(i);
     end
 
     totalMoment = sum(inertialMoments);
@@ -16,27 +15,24 @@ function [fuselageSF,total] = getFuselageSF(xDiscr,inertialDistro)
             1	1];
     B = [totalMoment; totalLoad];
     
-    
     X = linsolve(A,B);
     forceRF = X(1);
     forceRR = X(2);
-    
+
+
     sparReaction = zeros(1,80);
     sparReaction(31) = forceRF*-1;
     sparReaction(39) = forceRR*-1;
 
     for i = 1:length(xDiscr)
-        total(i) = inertialDistro(i) + sparReaction(i);
+        total(i) = InertialLoads(i) + aero(i) + sparReaction(i);
     end
     
-    fuselageSF = total(1);
-    for i = (2:length(total))
-        fuselageSF(i) = fuselageSF(i-1) + total(i);
-    end
 
-    % figure;
-    % plot(xDiscr, fuselageSF)
-    % title('Fuselage Only SF')
+    comboSF = total(1);
+    for i = (2:length(total))
+        comboSF(i) = comboSF(i-1) + total(i);
+    end
 
 
 end

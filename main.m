@@ -15,6 +15,7 @@ set(groot, 'defaultAxesFontName','Cambria Math')
 % ======== get inertial distrobution ====================
 
 [InertialLoads] = getInertialDistro();
+[x,y] = getInertialDistro2();
 
 % ======== get air load plot ============================
 
@@ -28,22 +29,26 @@ set(groot, 'defaultAxesFontName','Cambria Math')
 aeroSF = getAirSF(xDiscr,aero);
 
 % get fusealge SF plot
-[fuselageSF,total] = getFuselageSF(xDiscr,InertialLoads);
+[fuselageSF,inertialWithReaction] = getFuselageSF(xDiscr,InertialLoads2);
             % you get a bump at 31 that looks diff to reports but our aero
             % load is more disproportional so when u add it on it makes the
             % thing shoot above zero
 
+
+[inertialAndAirWithReaction, comboSF] = combineSF(xDiscr,InertialLoads2,aero); % effectively the n=3.75 case
+
+
 % n = 3.75 SF plot
-SF_3_75 = getSF_3_75(xDiscr,aero,total) ;   %combines the air and fuselage SF at 3.75 loading
+SF_3_75 = getSF_3_75(xDiscr,inertialAndAirWithReaction) ;   %combines the air and fuselage SF at 3.75 loading
 
 % n = -1.5 SF plot
-SF_1_5 = getSF_1_5(xDiscr, aero15,total);
+SF_1_5 = getSF_1_5(xDiscr, aero15,inertialAndAirWithReaction);
 
 % OEI SF plot 
-SF_OEI = getOEI(xDiscr,total);
+SF_OEI = getOEI(inertialAndAirWithReaction);
 
 % Landing SF plot 
-SFland = getLandingSF(xDiscr, total);
+SFland = getLandingSF(xDiscr, inertialAndAirWithReaction);
 
 %Total SF plot
 plotFinalSF(xDiscr, SF_3_75, SF_1_5, SF_OEI,SFland);
@@ -51,11 +56,18 @@ plotFinalSF(xDiscr, SF_3_75, SF_1_5, SF_OEI,SFland);
 
 %------------- Plots --------------------------------
        
-
-
+                    % 
+                    % 
                     % figure;
-                    % plot(xDiscr, InertialLoads)
+                    % plot(xDiscr, InertialLoads, 'LineWidth', 1.5)
                     % title('Inertial Loads')
+                    
+
+                     figure;
+                    bar(xDiscr, InertialLoads2)
+                    title('Inertial Loads')
+
+  
                     % 
                     % figure;
                     % bar(xDiscr, aero)
@@ -78,11 +90,16 @@ plotFinalSF(xDiscr, SF_3_75, SF_1_5, SF_OEI,SFland);
                     % figure;
                     % plot(xDiscr, SF_1_5)
                     % title('Aero SF at load factor - 1.5')
-                    % 
-                    % figure;
-                    % plot(xDiscr, SF_OEI)
-                    % title('OEI SF')
-                    % 
+
+                    figure;
+                    stairs(xDiscr, SF_OEI)
+                    title('OEI SF')
+
+           
+                    figure;
+                    stairs(xDiscr, comboSF)
+                    title('combo SF')
+
                     % figure;
                     % plot(xDiscr, SFland)
                     % title('SF at landing')
@@ -111,17 +128,17 @@ BM_3_75 = cumtrapz(SF_3_75);
 BM_OEI = cumtrapz(SF_OEI);
 BM_land = cumtrapz(SFland);
 
-% figure;
-%                     plot(xDiscr, BM_3_75)
-%                     %hold on;
-%                     %plot(xDiscr,BMInert)
-%                     hold on;
-%                     plot(xDiscr, BM_OEI)
-%                     hold on;
-%                     plot(xDiscr, BM_land)
-%                     title('BM Plot')
-%                     legend('n=3.75','OEI', 'landing')
-% 
+figure;
+                    plot(xDiscr, BM_3_75)
+                    %hold on;
+                    %plot(xDiscr,BMInert)
+                    hold on;
+                    plot(xDiscr, BM_OEI)
+                    hold on;
+                    plot(xDiscr, BM_land)
+                    title('BM Plot')
+                    legend('n=3.75','OEI', 'landing')
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
@@ -296,28 +313,28 @@ structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, sk
 
 frameThicknessMatrix = frameThickness(I_xx,bRange,hRange);
 frameAreaMatrix = frameArea(frameThicknessMatrix,bRange,hRange);
-
-[bGrid, hGrid] = meshgrid(bRange, hRange);
-
-figure;
-surf(bGrid, hGrid, frameThicknessMatrix', 'EdgeColor', 'none'); % Note the transpose
-xlabel('Flange Width b (m)');
-ylabel('Web Height h (m)');
-zlabel('Frame Thickness t_f (m)');
-title('Frame Thickness with Constant I_{xx}');
-colorbar;
-grid on;
-
-
-% 3D Plot for frame area
-figure;
-surf(bGrid, hGrid, frameAreaMatrix', 'EdgeColor', 'none');
-xlabel('Flange Width b (m)');
-ylabel('Web Height h (m)');
-zlabel('Frame Area A (m^2)');
-title('Frame Area with Constant I_{xx}');
-colorbar;
-grid on;
+% 
+% [bGrid, hGrid] = meshgrid(bRange, hRange);
+% 
+% figure;
+% surf(bGrid, hGrid, frameThicknessMatrix', 'EdgeColor', 'none'); % Note the transpose
+% xlabel('Flange Width b (m)');
+% ylabel('Web Height h (m)');
+% zlabel('Frame Thickness t_f (m)');
+% title('Frame Thickness with Constant I_{xx}');
+% colorbar;
+% grid on;
+% 
+% 
+% % 3D Plot for frame area
+% figure;
+% surf(bGrid, hGrid, frameAreaMatrix', 'EdgeColor', 'none');
+% xlabel('Flange Width b (m)');
+% ylabel('Web Height h (m)');
+% zlabel('Frame Area A (m^2)');
+% title('Frame Area with Constant I_{xx}');
+% colorbar;
+% grid on;
 
 % optimal light frame dimensions
 [minArea, idx] = min(frameAreaMatrix(:));
@@ -331,43 +348,100 @@ optimal_thickness = frameThicknessMatrix(row, col);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
 %                      HEAVY FRAMES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-% ---------- FRAME STRUCTURAL PROPERTIES -----------------------------
-           
-                    b = 0.02;
-                    h = 0.1;
-                    A = b*h;
-                    y_c = h/2;
-                    I_f = b*h^3/12;
-
-
-angle = pi*(0:10:360)/180;
-
-tanLoad = 1.00E+06; %CHANGE
-
-for i = 1:length(angle)
-    N(i) = tanLoad/(2*pi) * ((pi-angle(i))*cos(angle(i))-0.5*sin(angle(i)));
-    S(i) = (tanLoad/(2*pi))*(1+0.5*cos(angle(i))-(pi-angle(i))*sin(angle(i)));
-    M(i) = (tanLoad*D)/(4*pi)*(pi-angle(i))*(1-cos(angle(i)))-1.5*sin(angle(i));
-end
-
-
-figure;
-plot(angle,N);
-hold on;
-plot(angle,S);
-hold on;
-plot(angle,M);
-xlabel('Angle (rad)')
-ylabel('Load (N)')
-legend('N','S','M')
-
-
-
-
-
-
-
-
-
+% 
+% 
+% % ---------- FRAME STRUCTURAL PROPERTIES -----------------------------
+% 
+%                     b = 0.02;
+%                     h = 0.1;
+%                     A = b*h;
+%                     y_c = h/2;
+%                     I_f = b*h^3/12;
+% 
+% 
+% angle = pi*(0:5:360)/180;
+% theta= 1.138;
+% 
+% 
+% % Wing front Spar 
+% angle = linspace(0, 2*pi, 73);
+% Q = (SF_3_75(31))*cos(theta);  
+% P = (SF_3_75(31))*sin(theta);           
+% %T = BM_3_75(31); 
+% T = 0;
+% 
+% N = Q/(2*pi) * ((pi - angle).*cos(angle) - 0.5*sin(angle)); 
+% S = (Q/(2*pi)) * (1 + 0.5*cos(angle) - (pi - angle).*sin(angle)) + (P/(2*pi)); 
+% M = (Q*D)/(4*pi) * (pi - angle) .* (1 - cos(angle)) - 1.5*sin(angle) + (T/(2*pi));
+% 
+% figure;
+% plot(angle, N);
+% hold on;
+% plot(angle, S);
+% hold on;
+% plot(angle, M);
+% xlabel('Angle around frame (rad)');
+% ylabel('Load Distribution');
+% legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
+% title('Front Spar Frame');
+% grid on;
+% 
+% % Rear front Spar 
+% angle = linspace(0, 2*pi, 73);
+% Q = 0;  
+% P = abs(SF_3_75(39));        
+% T = BM_3_75(39);        
+% 
+% N = Q/(2*pi) * ((pi - angle).*cos(angle) - 0.5*sin(angle)); 
+% S = (Q/(2*pi)) * (1 + 0.5*cos(angle) - (pi - angle).*sin(angle)) + (P/(2*pi)); 
+% M = (Q*D)/(4*pi) * (pi - angle) .* (1 - cos(angle)) - 1.5*sin(angle) + (T/(2*pi));
+% 
+% figure;
+% plot(angle, N);
+% hold on;
+% plot(angle, S);
+% hold on;
+% plot(angle, M);
+% xlabel('Angle around frame (rad)');
+% ylabel('Load Distribution');
+% legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
+% title('Rear Spar Frame');
+% grid on;
+% 
+% 
+% 
+% phi = pi*(0:5:360)/180; % Angle in radians from 0 to 2*pi
+% Pt = abs(SF_3_75(31));
+% Qt = 0; 
+% Tt = 0;   
+% R = 3.2425;   
+% 
+% [Np, Sp, Mp, Nq, Sq, Mq, Nt, St, Mt, Nf, Sf, Mf] = calculateFrameLoads(Pt, Qt, Tt, R, phi);
+% 
+% figure;
+% plot(phi, Nf, phi, Sf, phi, Mf);
+% legend('Normal Force N_f', 'Shear Force S_f', 'Moment M_f');
+% xlabel('Angle \phi (rad)');
+% ylabel('Force/Moment');
+% title('Combined Frame Loads');
+% grid on;
+% 
+% Pt = abs(SF_3_75(39));
+% Qt = 0; 
+% Tt = 0;   
+% R = 3.2425;   
+% 
+% [Np, Sp, Mp, Nq, Sq, Mq, Nt, St, Mt, Nf, Sf, Mf] = calculateFrameLoads(Pt, Qt, Tt, R, phi);
+% 
+% figure;
+% plot(phi, Nf, phi, Sf, phi, Mf);
+% legend('Normal Force N_f', 'Shear Force S_f', 'Moment M_f');
+% xlabel('Angle \phi (rad)');
+% ylabel('Force/Moment');
+% title('Combined Frame Loads');
+% grid on;
+% 
+% 
+% 
+% 
+% 

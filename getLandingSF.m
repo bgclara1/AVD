@@ -1,11 +1,6 @@
 function SFland = getLandingSF(xDiscr, total)
 
-        
-    lTot = 79;
     SrefWing = 469.44;
-    
-    wingWidth = 13.6; %chord
-    WingLE = 28.4779;
     
     Va = 92.4;
     rhoC = 0.4592; % C cruise
@@ -37,6 +32,7 @@ function SFland = getLandingSF(xDiscr, total)
     SFland(1) = total(1);
     for i = 2:length(aeroland)
         SFland(i) = SFland(i-1) + aeroland(i) + total(i);
+
     end
 
     % figure;
