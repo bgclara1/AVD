@@ -1,4 +1,4 @@
-function [c, ceq] = constraints(x, shearYieldStress, tensileYieldStress, E, L_eff, Ks, nu, r)
+function [c, ceq] = constraints(x, shearYieldStressSkin, tensileYieldStressStringer, ESkin,EStringer, L_eff, Ks, nu, r)
 
     % Unpack Variables
     skinThickness = x(1);
@@ -11,13 +11,13 @@ function [c, ceq] = constraints(x, shearYieldStress, tensileYieldStress, E, L_ef
     stringerArea = ZStringerArea(stringerThickness, h, L);
 
     % Get Stress Distributions
-    [~, ~, ~, ~, totalSFlow] = plotShearFlow(shearYieldStress);
+    [~, ~, ~, ~, totalSFlow] = plotShearFlow(shearYieldStressSkin);
     [~, y, numStringers] = stringerPlot(StringerSpacing);
     directStress = stressPlot(skinThickness, stringerArea, y, numStringers);
 
     % Check constraints (single boolean per constraint)
-    [stringerStressOK, stringerEulerOK] = checkStringer(directStress, tensileYieldStress, E, stringerThickness, h, stringerArea, L_eff);
-    [skinYieldOK, skinBucklingOK] = checkSkinBay(totalSFlow, skinThickness, StringerSpacing, shearYieldStress, Ks, E, nu);
+    [stringerStressOK, stringerEulerOK] = checkStringer(directStress, tensileYieldStressStringer, EStringer, stringerThickness, h, stringerArea, L_eff);
+    [skinYieldOK, skinBucklingOK] = checkSkinBay(totalSFlow, skinThickness, StringerSpacing, shearYieldStressSkin, Ks, ESkin, nu);
 
     % Constraints (negative means constraint satisfied)
     c(1) = -double(stringerStressOK) + 0.5;  % Must be true (≤0)

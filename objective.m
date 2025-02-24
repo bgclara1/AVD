@@ -12,4 +12,3 @@ function mass = objective(x, density, r)
     mass = density * totalArea;
     
 end
-

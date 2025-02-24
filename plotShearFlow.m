@@ -1,4 +1,4 @@
-function [theta, PlotSFlow, circle, skinThickness,totalSFlow] = plotShearFlow(shearYieldStress)
+function [theta, PlotSFlow, circle, skinThickness,totalSFlow] = plotShearFlow(shearYieldStressSkin)
 
 
     n = 3.75;
@@ -47,9 +47,9 @@ function [theta, PlotSFlow, circle, skinThickness,totalSFlow] = plotShearFlow(sh
     % grid on;
     % legend('Shear Flow', 'Fuselage', 'Location', 'best');
     % 
-    % 
-    maxTotSF = max(abs(totalSFlow));
-    shearYieldStress = 187.06*1e+06; %    CHANGE
-    skinThickness = maxTotSF/shearYieldStress;
+    
+    
+    maxTotSF = max(abs(totalSFlow)); 
+    skinThickness = maxTotSF/shearYieldStressSkin;
 
 end
