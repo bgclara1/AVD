@@ -49,7 +49,7 @@ function [theta, PlotSFlow, circle, skinThickness,totalSFlow] = plotShearFlow(sh
     % 
     % 
     maxTotSF = max(abs(totalSFlow));
-  %  shearYieldStress = 187.06*1e+06; %    CHANGE
+    shearYieldStress = 187.06*1e+06; %    CHANGE
     skinThickness = maxTotSF/shearYieldStress;
 
 end

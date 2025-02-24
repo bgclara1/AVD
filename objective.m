@@ -1,14 +1,15 @@
 function mass = objective(x, density, r)
     skinThickness = x(1);
-    StringerSpacing = x(2);
-    stringerThickness = x(3);
+    spacing = x(2);
+    t_s = x(3);
     h = x(4);
     L = x(5);
-
-    numStringers = floor((2*pi*r)/StringerSpacing);
-    stringerArea = ZStringerArea(stringerThickness, h, L);
-    totalArea = stringerArea*numStringers + (2*pi*r)*skinThickness;
-    mass = totalArea * density; % kg/m
+    
+    C = 2*pi*r;
+    numStringers = floor(C/spacing);
+    stringerArea = ZStringerArea(t_s, h, L);
+    totalArea = numStringers * stringerArea + C * skinThickness;
+    mass = density * totalArea;
     
 end
 

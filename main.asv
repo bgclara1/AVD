@@ -28,7 +28,7 @@ set(groot, 'defaultAxesFontName','Cambria Math')
 aeroSF = getAirSF(xDiscr,aero);
 
 % get fusealge SF plot
-[fuselageSF,total] = getFuselageSF(xDiscr,inertialDistro);
+[fuselageSF,total] = getFuselageSF(xDiscr,InertialLoads);
             % you get a bump at 31 that looks diff to reports but our aero
             % load is more disproportional so when u add it on it makes the
             % thing shoot above zero
@@ -132,7 +132,7 @@ BM_land = cumtrapz(SFland);
 
             shearYieldStress = 187.06*1e+06;
             StringerSpacing = 0.2;
-            density = 2.78e+03;
+            density = 2780;
             tensileYieldStress = 324*1e6;
             E = 73e9;              
             L_eff = 0.5;          
@@ -142,68 +142,106 @@ BM_land = cumtrapz(SFland);
             L = 0.0166;
             Ks = 5;           %buckling coeff
             nu = 0.33;        %poisson
-            skinThickness = skinThickness;
-            skinThickness = 1;
-            
-            skinThickness = 0.0064813;
-            stringerSpacing = 0.05;
-            stringerThickness  = 0.0005;
-            h = 0.005;
-            L = 0.005;
 
 
 % -----------------------------------------------------------------
 
-
-stringerArea = ZStringerArea(stringerThickness, h, L) % h height, L flange length
-
-% Shear Flow plot
 [theta, PlotSFlow, circle, skinThickness, totalSFlow] = plotShearFlow(shearYieldStress);
 
-                figure;
-                polarplot(theta,PlotSFlow,'b-','LineWidth', 3)
-                hold on;
-                polarplot(theta,circle,'r-', 'LineWidth', 2)
-                ax = gca; 
-                ax.ThetaZeroLocation = 'top';
-                ax.ThetaDir = 'clockwise';
-                title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
-                grid on;
-                legend('Shear Flow', 'Fuselage', 'Location', 'best');
-                    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+%                   STRINGER OPTIMISATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+r = 3.195; % fuselage radius
+C = 2*pi*r;
+density = 2.78E+03;
+
+%% Initial Guess for [skinThickness, spacing, t_s, h, L]
+x0 = [0.008, 0.6, 0.003, 0.055, 0.03];
+
+%% Realistic Bounds for Variables [lower, upper]
+lb = [skinThickness*1.05, 0.4, 0.0013, 0.015, 0.01];
+ub = [0.01, 1, 0.005, 0.1, 0.07];
+
+%% Optimization Options
+options = optimoptions('fmincon', 'Display', 'iter', 'Algorithm', 'sqp',...
+                       'MaxIterations', 1000, 'MaxFunctionEvaluations', 5000);
+
+%% Run Optimization
+[x_opt, mass_opt] = fmincon(@(x)objective(x, density, r), x0, [], [], [], [], lb, ub,...
+                            @(x)constraints(x, shearYieldStress, tensileYieldStress, E, L_eff, Ks, nu, r), options);
+
+%% Display Optimized Results
+disp('Optimized Variables:');
+disp(['Skin Thickness: ', num2str(x_opt(1)), ' m']);
+disp(['Stringer Spacing: ', num2str(x_opt(2)), ' m']);
+disp(['Stringer Thickness: ', num2str(x_opt(3)), ' m']);
+disp(['Stringer Height: ', num2str(x_opt(4)), ' m']);
+disp(['Stringer Flange Length: ', num2str(x_opt(5)), ' m']);
+disp(['Optimized Fuselage Mass per Unit Length: ', num2str(mass_opt), ' kg/m']);
+
+
+% ----------------------------------------------------------------------------------
+
+
+            skinThickness = x_opt(1);
+            stringerSpacing = x_opt(2);
+            stringerThickness  = x_opt(3);
+            h = x_opt(4);
+            L = x_opt(5);
+
+
+stringerArea = ZStringerArea(stringerThickness, h, L); % h height, L flange length
+
+% Shear Flow plot
+[theta, PlotSFlow, circle, ~, totalSFlow] = plotShearFlow(shearYieldStress);
+
+                % figure;
+                % polarplot(theta,PlotSFlow,'b-','LineWidth', 3)
+                % hold on;
+                % polarplot(theta,circle,'r-', 'LineWidth', 2)
+                % ax = gca; 
+                % ax.ThetaZeroLocation = 'top';
+                % ax.ThetaDir = 'clockwise';
+                % title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
+                % grid on;
+                % legend('Shear Flow', 'Fuselage', 'Location', 'best');
+                % 
+
+
 % Stringer Diagram
 [x,y,numStringers] = stringerPlot(StringerSpacing);
 
-                figure;
-                scatter(x, y, 'filled');
-                grid on;
-                axis equal; 
-                margin = 0.3 * max(abs([x, y])); 
-                xlim([-max(abs(x)) - margin, max(abs(x)) + margin]);
-                ylim([-max(abs(y)) - margin, max(abs(y)) + margin]);
-                xlabel('X-axis', 'FontSize', 12, 'FontWeight', 'bold');
-                ylabel('Y-axis', 'FontSize', 12, 'FontWeight', 'bold');
-                title('Stringer Positions Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
+                % figure;
+                % scatter(x, y, 'filled');
+                % grid on;
+                % axis equal; 
+                % margin = 0.3 * max(abs([x, y])); 
+                % xlim([-max(abs(x)) - margin, max(abs(x)) + margin]);
+                % ylim([-max(abs(y)) - margin, max(abs(y)) + margin]);
+                % xlabel('X-axis', 'FontSize', 12, 'FontWeight', 'bold');
+                % ylabel('Y-axis', 'FontSize', 12, 'FontWeight', 'bold');
+                % title('Stringer Positions Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
 
 % Direct stress plot
-directStress = stressPlot(skinThickness,StringerArea,y,numStringers,density);
+directStress = stressPlot(skinThickness,stringerArea,y,numStringers,density);
+
             
-                figure;
-                hold on;
-                grid on;
-                plot3(x, zeros(size(x)), y, 'r-', 'LineWidth', 2);
-                quiver3(x, zeros(size(x)), y,zeros(size(x)), directStress, zeros(size(x)),'b', 'LineWidth', 1.5, 'MaxHeadSize', 0.5);
-                xlabel('z');
-                ylabel('y');
-                zlabel('Direct stress \sigma_z (MPa)');
-                title('Direct stress distribution around fuselage');
-                view(3);
-                legend('Fuselage cross-section', 'Direct stress at each stringer');
-                axis equal;
+                % figure;
+                % hold on;
+                % grid on;
+                % plot3(x, zeros(size(x)), y, 'r-', 'LineWidth', 2);
+                % quiver3(x, zeros(size(x)), y,zeros(size(x)), directStress, zeros(size(x)),'b', 'LineWidth', 1.5, 'MaxHeadSize', 0.5);
+                % xlabel('z');
+                % ylabel('y');
+                % zlabel('Direct stress \sigma_z (MPa)');
+                % title('Direct stress distribution around fuselage');
+                % view(3);
+                % legend('Fuselage cross-section', 'Direct stress at each stringer');
+                % axis equal;
 
 %skinThickness = 0.01; %important var for skin bay buckling
 
-% structural compliance
+%structural compliance
 [stringerStressCompliant,stringerEulerCompliant] = checkStringer(directStress, tensileYieldStress,E, b, h, stringerArea, L_eff);
 [skinYieldCompliant, skinBucklingCompliant] = checkSkinBay(totalSFlow, skinThickness, StringerSpacing, shearYieldStress, Ks, E, nu);
 structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, skinYieldCompliant, skinBucklingCompliant]) % 0 false, 1 true
@@ -233,46 +271,57 @@ structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, sk
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
-%                   STRINGER OPTIMISATION
+%                      LIGHT FRAMES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% --------- FRAME GEOMETRIC AND MATERIAL PARAMETERS -----------------
+                    E = 7.3*1e9;
+                    D = 6.485;
+                    L = 0.5; %changes?
+                    C_f = 6.25*1e-5;
+                    h = 0.05; %changes?
+                    M_ult = max(abs(BM_3_75));
+% ---------- FRAME STRUCTURAL PROPERTIES -----------------------------
+                    EI = C_f*M_ult*D^2/L;
+                    I = EI/E;
+                    I_xx = I;
+                    b = I*12/h^3;
+                    A = b*h;
 
-r = 3.2425; % fuselage radius
-C = 2*pi*r;
+                    bRange = 0.01:0.001:0.06;
+                    hRange = 0.05:0.001:0.12;
 
-%% Initial Guess for Design Variables [skinThickness, spacing, t_s, h, L]
-x0 = [0.002, 0.2, 0.002, 0.02, 0.0166];
-
-%% Bounds for variables [lower bound], [upper bound]
-lb = [0.001, 0.05, 0.001, 0.02, 0.01];
-ub = [0.003, 0.5, 0.003, 0.1, 0.06];
-
-%% Optimization options
-options = optimoptions('fmincon','Display','iter','Algorithm','sqp');
-
-%% Solve optimization
-[x_opt, mass_opt] = fmincon(@(x)objective(x, density, r), x0, [], [], [], [], lb, ub, ...
-                            @(x)constraints(x, shearYieldStress, tensileYieldStress, E, L_eff, Ks, nu, r), options);
-
-%% Display results
-disp('Optimized Variables:');
-disp(['Skin Thickness: ', num2str(x_opt(1)),' m']);
-disp(['Stringer Spacing: ', num2str(x_opt(2)),' m']);
-disp(['Stringer Thickness: ', num2str(x_opt(3)),' m']);
-disp(['Stringer Height: ', num2str(x_opt(4)),' m']);
-disp(['Stringer Flange Length: ', num2str(x_opt(5)),' m']);
-disp(['Optimized Fuselage Mass per Unit Length: ', num2str(mass_opt),' kg/m']);
-
-% ----------------------------------------------------------------------------------
+frameThicknessMatrix = frameThickness(I_xx,bRange,hRange);
+frameAreaMatrix = frameArea(frameThicknessMatrix,bRange,hRange);
 
 
+[bGrid, hGrid] = meshgrid(bRange, hRange);
+
+% figure;
+% surf(bGrid, hGrid, frameThicknessMatrix', 'EdgeColor', 'none'); % Note the transpose
+% xlabel('Flange Width b (m)');
+% ylabel('Web Height h (m)');
+% zlabel('Frame Thickness t_f (m)');
+% title('Frame Thickness with Constant I_{xx}');
+% colorbar;
+% grid on;
+% 
+% 
+% % 3D Plot for frame area
+% figure;
+% surf(bGrid, hGrid, frameAreaMatrix', 'EdgeColor', 'none');
+% xlabel('Flange Width b (m)');
+% ylabel('Web Height h (m)');
+% zlabel('Frame Area A (m^2)');
+% title('Frame Area with Constant I_{xx}');
+% colorbar;
+% grid on;
 
 
-
-
-
-
-
-
+[minArea, idx] = min(frameAreaMatrix(:));
+[row, col] = ind2sub(size(frameAreaMatrix), idx);
+optimal_b = bRange(row);
+optimal_h = hRange(col);
+optimal_thickness = frameThicknessMatrix(row, col);
 
 
 

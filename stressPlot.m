@@ -19,7 +19,7 @@ function directStress = stressPlot(skinThickness,StringerArea,y,numStringers,den
     A = StringerArea*numStringers+C*skinThickness;
     
    % density = 2.78e+03; %change
-    FuselageWeightPUL = density*A;
+ %   FuselageWeightPUL = density*A;
     
     sigma = (M * c) ./ (I * 1e6);
     directStress = sigma .* y / c; 
