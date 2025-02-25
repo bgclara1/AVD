@@ -6,7 +6,7 @@ close all;
     
     - fix shear flow
     - fix bending
-    - fix stringer opt
+    - fix stringer opt - done 
     - do heavy frames
     - fuselage fatigue?
 
@@ -178,7 +178,21 @@ BM_land = cumtrapz(SFland);
 
 % -----------------------------------------------------------------
 
-[~, ~, ~, minSkinThickness, ~] = plotShearFlow(shearYieldStressSkin);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+%                     STRINGER OPTIMISATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+%[skinThickness, stringerSpacing,h, stringerThickness] = stringerOptimisation(density);
+skinThickness = 0.0042;
+stringerSpacing = 0.1;
+h = 0.05;
+stringerThickness = 0.0025;
+
+% Stringer Diagram
+[x, y, numStringers] = stringerPlot(stringerSpacing);
+
+%[~, ~, ~, minSkinThickness, ~] = plotShearFlow(shearYieldStressSkin);
 
 
 % Shear Flow plot
@@ -209,39 +223,24 @@ BM_land = cumtrapz(SFland);
                 legend('Shear Flow', 'Fuselage', 'Location', 'best');
 
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
-%                     STRINGER OPTIMISATION
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-
-%[skinThickness, stringerSpacing] = stringerOptimisation(density);
-skinThickness = 0.0042;
-stringerSpacing = 0.1;
-
-
-% Stringer Diagram
-[x, y, numStringers] = stringerPlot(stringerSpacing);
-
-
-%stringerArea = ZStringerArea(stringerThickness, h, L); % h height, L flange length
+stringerArea = ZStringerArea(stringerThickness, h, L); % h height, L flange length
 
 % Direct stress plot
 directStress = stressPlot(skinThickness,stringerArea,y,numStringers,density);
 
-                % 
-                % figure;
-                % hold on;
-                % grid on;
-                % plot3(x, zeros(size(x)), y, 'r-', 'LineWidth', 2);
-                % quiver3(x, zeros(size(x)), y,zeros(size(x)), directStress, zeros(size(x)),'b', 'LineWidth', 1, 'MaxHeadSize', 0.5);
-                % xlabel('z');
-                % ylabel('y');
-                % zlabel('Direct stress \sigma_z (MPa)');
-                % title('Direct stress distribution around fuselage');
-                % view(3);
-                % legend('Fuselage cross-section', 'Direct stress at each stringer');
-                % axis equal;
+
+                figure;
+                hold on;
+                grid on;
+                plot3(x, zeros(size(x)), y, 'r-', 'LineWidth', 2);
+                quiver3(x, zeros(size(x)), y,zeros(size(x)), directStress, zeros(size(x)),'b', 'LineWidth', 1, 'MaxHeadSize', 0.5);
+                xlabel('z');
+                ylabel('y');
+                zlabel('Direct stress \sigma_z (MPa)');
+                title('Direct stress distribution around fuselage');
+                view(3);
+                legend('Fuselage cross-section', 'Direct stress at each stringer');
+                axis equal;
 
 
 %skinThickness = 0.01; %important var for skin bay buckling
@@ -302,8 +301,8 @@ structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, sk
 frameThicknessMatrix = frameThickness(I_xx,bRange,hRange);
 frameAreaMatrix = frameArea(frameThicknessMatrix,bRange,hRange);
 
-% [bGrid, hGrid] = meshgrid(bRange, hRange);
-% 
+[bGrid, hGrid] = meshgrid(bRange, hRange);
+
 % figure;
 % surf(bGrid, hGrid, frameThicknessMatrix', 'EdgeColor', 'none'); % Note the transpose
 % xlabel('Flange Width b (m)');
@@ -337,53 +336,53 @@ optimal_thickness = frameThicknessMatrix(row, col);
 %                      HEAVY FRAMES
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% 
-% % ---------- FRAME STRUCTURAL PROPERTIES -----------------------------
-% 
-%                     b = 0.02;
-%                     h = 0.1;
-%                     A = b*h;
-%                     y_c = h/2;
-%                     I_f = b*h^3/12;
-% 
-% 
-% angle = pi*(0:5:360)/180;
-% theta= 1.138;
-% 
-% 
-% % Wing front Spar 
-% angle = linspace(0, 2*pi, 73);
-% Q = (SF_3_75(31))*cos(theta);  
-% P = (SF_3_75(31))*sin(theta);           
-% %T = BM_3_75(31); 
-% T = 0;
-% 
-% N = Q/(2*pi) * ((pi - angle).*cos(angle) - 0.5*sin(angle)); 
-% S = (Q/(2*pi)) * (1 + 0.5*cos(angle) - (pi - angle).*sin(angle)) + (P/(2*pi)); 
-% M = (Q*D)/(4*pi) * (pi - angle) .* (1 - cos(angle)) - 1.5*sin(angle) + (T/(2*pi));
-% 
-% figure;
-% plot(angle, N);
-% hold on;
-% plot(angle, S);
-% hold on;
-% plot(angle, M);
-% xlabel('Angle around frame (rad)');
-% ylabel('Load Distribution');
-% legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
-% title('Front Spar Frame');
-% grid on;
-% 
-% % Rear front Spar 
-% angle = linspace(0, 2*pi, 73);
-% Q = 0;  
-% P = abs(SF_3_75(39));        
-% T = BM_3_75(39);        
-% 
-% N = Q/(2*pi) * ((pi - angle).*cos(angle) - 0.5*sin(angle)); 
-% S = (Q/(2*pi)) * (1 + 0.5*cos(angle) - (pi - angle).*sin(angle)) + (P/(2*pi)); 
-% M = (Q*D)/(4*pi) * (pi - angle) .* (1 - cos(angle)) - 1.5*sin(angle) + (T/(2*pi));
-% 
+
+% ---------- FRAME STRUCTURAL PROPERTIES -----------------------------
+
+                    b = 0.02;
+                    h = 0.1;
+                    A = b*h;
+                    y_c = h/2;
+                    I_f = b*h^3/12;
+
+
+angle = pi*(0:5:360)/180;
+theta= 1.138;
+
+
+% Wing front Spar 
+angle = linspace(0, 2*pi, 73);
+Q = (SF_3_75(31))*cos(theta);  
+P = (SF_3_75(31))*sin(theta);           
+%T = BM_3_75(31); 
+T = 0;
+
+N = Q/(2*pi) * ((pi - angle).*cos(angle) - 0.5*sin(angle)); 
+S = (Q/(2*pi)) * (1 + 0.5*cos(angle) - (pi - angle).*sin(angle)) + (P/(2*pi)); 
+M = (Q*D)/(4*pi) * (pi - angle) .* (1 - cos(angle)) - 1.5*sin(angle) + (T/(2*pi));
+
+figure;
+plot(angle, N);
+hold on;
+plot(angle, S);
+hold on;
+plot(angle, M);
+xlabel('Angle around frame (rad)');
+ylabel('Load Distribution');
+legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
+title('Front Spar Frame');
+grid on;
+
+% Rear front Spar 
+angle = linspace(0, 2*pi, 73);
+Q = 0;  
+P = abs(SF_3_75(39));        
+T = BM_3_75(39);        
+
+N = Q/(2*pi) * ((pi - angle).*cos(angle) - 0.5*sin(angle)); 
+S = (Q/(2*pi)) * (1 + 0.5*cos(angle) - (pi - angle).*sin(angle)) + (P/(2*pi)); 
+M = (Q*D)/(4*pi) * (pi - angle) .* (1 - cos(angle)) - 1.5*sin(angle) + (T/(2*pi));
+
 % figure;
 % plot(angle, N);
 % hold on;
@@ -395,17 +394,30 @@ optimal_thickness = frameThicknessMatrix(row, col);
 % legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
 % title('Rear Spar Frame');
 % grid on;
-% 
-% 
-% 
-% phi = pi*(0:5:360)/180; % Angle in radians from 0 to 2*pi
-% Pt = abs(SF_3_75(31));
-% Qt = 0; 
-% Tt = 0;   
-% R = 3.2425;   
-% 
-% [Np, Sp, Mp, Nq, Sq, Mq, Nt, St, Mt, Nf, Sf, Mf] = calculateFrameLoads(Pt, Qt, Tt, R, phi);
-% 
+
+phi = pi*(0:5:360)/180; % Angle in radians from 0 to 2*pi
+Pt = abs(SF_3_75(31));
+Qt = 0; 
+Tt = 0;   
+R = 3.2425;   
+
+[Np, Sp, Mp, Nq, Sq, Mq, Nt, St, Mt, Nf, Sf, Mf] = calculateFrameLoads(Pt, Qt, Tt, R, phi);
+
+% figure;
+% plot(phi, Nf, phi, Sf, phi, Mf);
+% legend('Normal Force N_f', 'Shear Force S_f', 'Moment M_f');
+% xlabel('Angle \phi (rad)');
+% ylabel('Force/Moment');
+% title('Combined Frame Loads');
+% grid on;
+
+Pt = abs(SF_3_75(39));
+Qt = 0; 
+Tt = 0;   
+R = 3.2425;   
+
+[Np, Sp, Mp, Nq, Sq, Mq, Nt, St, Mt, Nf, Sf, Mf] = calculateFrameLoads(Pt, Qt, Tt, R, phi);
+
 % figure;
 % plot(phi, Nf, phi, Sf, phi, Mf);
 % legend('Normal Force N_f', 'Shear Force S_f', 'Moment M_f');
@@ -414,24 +426,9 @@ optimal_thickness = frameThicknessMatrix(row, col);
 % title('Combined Frame Loads');
 % grid on;
 % 
-% Pt = abs(SF_3_75(39));
-% Qt = 0; 
-% Tt = 0;   
-% R = 3.2425;   
-% 
-% [Np, Sp, Mp, Nq, Sq, Mq, Nt, St, Mt, Nf, Sf, Mf] = calculateFrameLoads(Pt, Qt, Tt, R, phi);
-% 
-% figure;
-% plot(phi, Nf, phi, Sf, phi, Mf);
-% legend('Normal Force N_f', 'Shear Force S_f', 'Moment M_f');
-% xlabel('Angle \phi (rad)');
-% ylabel('Force/Moment');
-% title('Combined Frame Loads');
-% grid on;
-% 
-% 
-% 
-% 
+
+
+
 
 
 
