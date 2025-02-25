@@ -59,6 +59,9 @@ SF_1_5 = getSF_1_5(xDiscr, aero15,inertialAndAirWithReaction);
 % OEI SF plot 
 SF_OEI = getOEI(inertialAndAirWithReaction);
 
+%change param to inertial Load to recalc air for landing
+
+
 % Landing SF plot 
 SFland = getLandingSF(xDiscr, inertialAndAirWithReaction);
 
@@ -69,59 +72,59 @@ SFland = getLandingSF(xDiscr, inertialAndAirWithReaction);
 %------------- Plots --------------------------------
 
 
-                    figure;
-                    plot(xDiscr, InertialLoads, 'LineWidth', 1.5)
-                    title('Inertial Loads')                  
-
-                     figure;
-                    bar(xDiscr, InertialLoads2)
-                    title('Inertial Loads')
-
-                    figure;
-                    bar(xDiscr, aero)
-                    hold on;
-                    bar(xDiscr,aero15)
-                    title('Aero Loads')
-
-                    figure;
-                    plot(xDiscr, aeroSF)
-                    title('Aero Loads')
-
-                    figure;
-                    plot(xDiscr, fuselageSF)
-                    title('Fuselage Only SF')
-
-                    figure;
-                    plot(xDiscr, SF_3_75)
-                    title('Aero SF at load factor 3.75')
-
-                    figure;
-                    plot(xDiscr, SF_1_5)
-                    title('Aero SF at load factor - 1.5')
-
-                    figure;
-                    stairs(xDiscr, SF_OEI)
-                    title('OEI SF')
-
-
-                    figure;
-                    stairs(xDiscr, comboSF)
-                    title('combo SF')
-
-                    figure;
-                    plot(xDiscr, SFland)
-                    title('SF at landing')
+                    % figure;
+                    % plot(xDiscr, InertialLoads, 'LineWidth', 1.5)
+                    % title('Inertial Loads')                  
                     % 
-                    figure;
-                    plot(xDiscr, SF_3_75)
-                    %hold on;
-                    %plot(xDiscr,SF_1_5)
-                    hold on;
-                    plot(xDiscr, SF_OEI)
-                    hold on;
-                    plot(xDiscr, SFland)
-                    title('SF Plot')
-                    legend('n=3.75','OEI', 'landing')
+                    %  figure;
+                    % bar(xDiscr, InertialLoads2)
+                    % title('Inertial Loads')
+                    % 
+                    % figure;
+                    % bar(xDiscr, aero)
+                    % hold on;
+                    % bar(xDiscr,aero15)
+                    % title('Aero Loads')
+                    % 
+                    % figure;
+                    % plot(xDiscr, aeroSF)
+                    % title('Aero Loads')
+                    % 
+                    % figure;
+                    % plot(xDiscr, fuselageSF)
+                    % title('Fuselage Only SF')
+                    % 
+                    % figure;
+                    % plot(xDiscr, SF_3_75)
+                    % title('Aero SF at load factor 3.75')
+                    % 
+                    % figure;
+                    % plot(xDiscr, SF_1_5)
+                    % title('Aero SF at load factor - 1.5')
+                    % 
+                    % figure;
+                    % stairs(xDiscr, SF_OEI)
+                    % title('OEI SF')
+                    % 
+                    % 
+                    % figure;
+                    % stairs(xDiscr, comboSF)
+                    % title('combo SF')
+                    % 
+                    % figure;
+                    % plot(xDiscr, SFland)
+                    % title('SF at landing')
+                    % % 
+                    % figure;
+                    % plot(xDiscr, SF_3_75)
+                    % %hold on;
+                    % %plot(xDiscr,SF_1_5)
+                    % hold on;
+                    % plot(xDiscr, SF_OEI)
+                    % hold on;
+                    % plot(xDiscr, SFland)
+                    % title('SF Plot')
+                    % legend('n=3.75','OEI', 'landing')
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
@@ -356,30 +359,38 @@ optimal_thickness = frameThicknessMatrix(row, col);
 %   P = tangential
 %   T = torque
 
+%   N = normal force
+%   S = shear force
+%   M = moment
+
 
 % Wing front Spar 
 
-theta= 1.138; %dihedral
+theta = 1.138; %dihedral
 
 angle = pi*(0:5:360)/180;
 Q = (SF_3_75(31))*cos(theta);  
 P = (SF_3_75(31))*sin(theta);           
 T = 0;
 
-
 [Nf, Sf, Mf] = calculateFrameLoads(P, Q, T, r, angle);
+maxNFWS = max(Nf) % maximum N front wing spar
+maxSFWS = max(Sf)
+maxMFWS = max(Mf)
 
-figure;
-plot(angle, Nf);
-hold on;
-plot(angle, Sf);
-hold on;
-plot(angle, Mf);
-xlabel('Angle around frame (rad)');
-ylabel('Load Distribution');
-legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
-title('Front Spar Frame');
-grid on;
+
+
+% figure;
+% plot(angle, Nf);
+% hold on;
+% plot(angle, Sf);
+% hold on;
+% plot(angle, Mf);
+% xlabel('Angle around frame (rad)');
+% ylabel('Load Distribution');
+% legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
+% title('Front Wing Spar Frame');
+% grid on;
 
 % Rear wing Spar 
 angle = pi*(0:5:360)/180;
@@ -389,56 +400,104 @@ T = 0;
 
 [Nf, Sf, Mf] = calculateFrameLoads(P, Q, T, r, angle);
 
-figure;
-plot(angle, Nf);
-hold on;
-plot(angle, Sf);
-hold on;
-plot(angle, Mf);
-xlabel('Angle around frame (rad)');
-ylabel('Load Distribution');
-legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
-title('Rear Spar Frame');
-grid on;
+maxNRWS = max(Nf);% maximum N rear wing spar
+maxSRWS = max(Sf);
+maxMRWS = max(Mf);
+
+% figure;
+% plot(angle, Nf);
+% hold on;
+% plot(angle, Sf);
+% hold on;
+% plot(angle, Mf);
+% xlabel('Angle around frame (rad)');
+% ylabel('Load Distribution');
+% legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
+% title('Rear Wing Spar Frame');
+% grid on;
 
 
 %front emp frame
+r = 2.655;
 
 P = 0;
-Q = 0; 
-T = 0;   
+Q = SF_3_75(71); 
+T = SF_OEI(71)/2;   
 
 [Nf, Sf, Mf] = calculateFrameLoads(P, Q, T, r, angle);
 
-figure;
-plot(angle, Nf);
-hold on;
-plot(angle, Sf);
-hold on;
-plot(angle, Mf);
-legend('Normal Force N_f', 'Shear Force S_f', 'Moment M_f');
-xlabel('Angle \phi (rad)');
-ylabel('Force/Moment');
-title('Combined Frame Loads');
-grid on;
+maxNFTS = max(Nf);% maximum N front tail spar
+maxSFTS = max(Sf);
+maxMFTS = max(Mf);
 
-P = abs(SF_3_75(39));
-Q = 0; 
-T = 0;   
+% figure;
+% plot(angle, Nf);
+% hold on;
+% plot(angle, Sf);
+% hold on;
+% plot(angle, Mf);
+% legend('Normal Force N_f', 'Shear Force S_f', 'Moment M_f');
+% xlabel('Angle \phi (rad)');
+% ylabel('Force/Moment');
+% title('Front Tailplane Spar Frame');
+% grid on;
+
+
+%Rear tailplane frame
+
+P = 0;
+Q = SF_3_75(75); 
+T = SF_OEI(75)/2;   
+r = 1.805;
 
 [Nf, Sf, Mf] = calculateFrameLoads(P, Q, T, r, angle);
 
-figure;
-plot(angle, Nf);
-hold on;
-plot(angle, Sf);
-hold on;
-plot(angle, Mf);
-legend('Normal Force N_f', 'Shear Force S_f', 'Moment M_f');
-xlabel('Angle \phi (rad)');
-ylabel('Force/Moment');
-title('Combined Frame Loads');
-grid on;
+maxNRTS = max(Nf); % maximum N rear tail spar
+maxSRTS = max(Sf);
+maxMRTS = max(Mf);
+% 
+% figure;
+% plot(angle, Nf);
+% hold on;
+% plot(angle, Sf);
+% hold on;
+% plot(angle, Mf);
+% legend('Normal Force N_f', 'Shear Force S_f', 'Moment M_f');
+% xlabel('Angle \phi (rad)');
+% ylabel('Force/Moment');
+% title('Rear Tailplane Spar Frame');
+% grid on;
+% 
+
+% h     web height
+% l     flange length
+% t_w   web thickness
+% t_f   flange thickness
+
+
+%[h,l,t] = heavyFrameOptimisation(maxN,maxS,maxM);
+
+disp('Iterating Front Spar Wing ')
+[hFWS,lFWS,tFWS] = heavyFrameOptimisation(maxNFWS,maxSFWS,maxMFWS);
+disp('Iterating Rear Spar Wing ')
+[hRWS,lRWS,tRWS] = heavyFrameOptimisation(maxNRWS,maxSRWS,maxMRWS);
+disp('Iterating Front Spar Tail ')
+[hFTS,lFTS,tFTS] = heavyFrameOptimisation(maxNFTS,maxSFTS,maxMFTS);
+disp('Iterating Rear Spar Tail ')
+[hRTS,lRTS,tRTS] = heavyFrameOptimisation(maxNRTS,maxSRTS,maxMRTS);
+disp('done ')
+
+% [hFWS,lFWS,tFWS] 
+% [hRWS,lRWS,tRWS]
+% [hFTS,lFTS,tFTS]
+% [hRTS,lRTS,tRTS] 
+
+
+
+
+
+
+
 
 
 
