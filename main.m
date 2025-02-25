@@ -183,12 +183,17 @@ BM_land = cumtrapz(SFland);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 
- [skinThickness,stringerThickness,h,t_s,L,stringerSpacing] = stringerOptimisation(density);
+ [skinThickness,stringerThickness,h,L,stringerSpacing] = stringerOptimisation(density)
+
 
 % skinThickness = 0.0042;
 % stringerSpacing = 0.1;
-% h = 0.05;
+% t_s = stringerSpacing;
+% h = 0.003;
 % stringerThickness = 0.0025;
+% L = 0.01;
+
+stringerArea = ZStringerArea(stringerThickness, h, L); % h height, L flange length
 
 % Stringer Diagram
 [x, y, numStringers] = stringerPlot(stringerSpacing);
@@ -199,58 +204,58 @@ BM_land = cumtrapz(SFland);
 % Shear Flow plot
 [theta, PlotSFlow, circle, ~, totalSFlow] = plotShearFlow(shearYieldStress);
 
-                figure;
-                markerSize = 7;
-                scatter(x, y,markerSize, 'filled');
-                grid on;
-                axis equal; 
-                margin = 0.3 * max(abs([x, y])); 
-                xlim([-max(abs(x)) - margin, max(abs(x)) + margin]);
-                ylim([-max(abs(y)) - margin, max(abs(y)) + margin]);
-                xlabel('X-axis', 'FontSize', 12, 'FontWeight', 'bold');
-                ylabel('Y-axis', 'FontSize', 12, 'FontWeight', 'bold');
-                title('Stringer Positions Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
+                % figure;
+                % markerSize = 7;
+                % scatter(x, y,markerSize, 'filled');
+                % grid on;
+                % axis equal; 
+                % margin = 0.3 * max(abs([x, y])); 
+                % xlim([-max(abs(x)) - margin, max(abs(x)) + margin]);
+                % ylim([-max(abs(y)) - margin, max(abs(y)) + margin]);
+                % xlabel('X-axis', 'FontSize', 12, 'FontWeight', 'bold');
+                % ylabel('Y-axis', 'FontSize', 12, 'FontWeight', 'bold');
+                % title('Stringer Positions Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
+                % 
+                % 
+                % figure;
+                % polarplot(theta,PlotSFlow,'b-','LineWidth', 3)
+                % hold on;
+                % polarplot(theta,circle,'r-', 'LineWidth', 2)
+                % ax = gca; 
+                % ax.ThetaZeroLocation = 'top';
+                % ax.ThetaDir = 'clockwise';
+                % title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
+                % grid on;
+                % legend('Shear Flow', 'Fuselage', 'Location', 'best');
+                % 
+                % 
 
-
-                figure;
-                polarplot(theta,PlotSFlow,'b-','LineWidth', 3)
-                hold on;
-                polarplot(theta,circle,'r-', 'LineWidth', 2)
-                ax = gca; 
-                ax.ThetaZeroLocation = 'top';
-                ax.ThetaDir = 'clockwise';
-                title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
-                grid on;
-                legend('Shear Flow', 'Fuselage', 'Location', 'best');
-
-
-stringerArea = ZStringerArea(stringerThickness, h, L); % h height, L flange length
 
 % Direct stress plot
 directStress = stressPlot(skinThickness,stringerArea,y,numStringers,density);
 
 
-                figure;
-                hold on;
-                grid on;
-                plot3(x, zeros(size(x)), y, 'r-', 'LineWidth', 2);
-                quiver3(x, zeros(size(x)), y,zeros(size(x)), directStress, zeros(size(x)),'b', 'LineWidth', 1, 'MaxHeadSize', 0.5);
-                xlabel('z');
-                ylabel('y');
-                zlabel('Direct stress \sigma_z (MPa)');
-                title('Direct stress distribution around fuselage');
-                view(3);
-                legend('Fuselage cross-section', 'Direct stress at each stringer');
-                axis equal;
-
+                % figure;
+                % hold on;
+                % grid on;
+                % plot3(x, zeros(size(x)), y, 'r-', 'LineWidth', 2);
+                % quiver3(x, zeros(size(x)), y,zeros(size(x)), directStress, zeros(size(x)),'b', 'LineWidth', 1, 'MaxHeadSize', 0.5);
+                % xlabel('z');
+                % ylabel('y');
+                % zlabel('Direct stress \sigma_z (MPa)');
+                % title('Direct stress distribution around fuselage');
+                % view(3);
+                % legend('Fuselage cross-section', 'Direct stress at each stringer');
+                % axis equal;
+                % 
 
 %skinThickness = 0.01; %important var for skin bay buckling
 
-%structural compliance
-[stringerStressCompliant,stringerEulerCompliant] = checkStringer(directStress, tensileYieldStressStringer,EStringer, b, h, stringerArea, L_eff);
+
+
+[stringerStressCompliant,stringerEulerCompliant] = checkStringer(directStress, tensileYieldStress,E, h,stringerArea, L, t_s);
 [skinYieldCompliant, skinBucklingCompliant] = checkSkinBay(totalSFlow, skinThickness, stringerSpacing, shearYieldStressSkin, Ks, ESkin, nu);
 structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, skinYieldCompliant, skinBucklingCompliant]) % 0 false, 1 true
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   

@@ -39,8 +39,9 @@ function [skinThickness,stringerThickness,h,L,stringerSpacing] = stringerOptimis
     for i = 1:length(skinThicknessRange)
         currentSkinThickness = skinThicknessRange(i);
         for j = 1:length(stringerSpacingRange)
-            currentStringerSpacing = stringerSpacingRange(j);
-            [~, y, numStringers] = stringerPlot(currentStringerSpacing);
+            currentStringerSpacing = 
+            % Get the stringer geometry for the given spacing
+            [~, y, numStringers] = stringerPlot(stringerSpacingRange(j));
     
             for k = 1:length(stringerThicknessRange)
                 % Use the current stringer thickness from the range
@@ -61,7 +62,7 @@ function [skinThickness,stringerThickness,h,L,stringerSpacing] = stringerOptimis
 
 
                         [skinYieldCompliant, skinBucklingCompliant] = checkSkinBay(...
-                            totalSFlow, currentSkinThickness, currentStringerSpacing, shearYieldStressSkin, Ks, ESkin, nu);
+                            totalSFlow, currentSkinThickness, stringerSpacingRange(j), shearYieldStressSkin, Ks, ESkin, nu);
     
                         structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, skinYieldCompliant, skinBucklingCompliant]);
     
@@ -97,8 +98,7 @@ function [skinThickness,stringerThickness,h,L,stringerSpacing] = stringerOptimis
     [minValue, idxMin] = min(objectiveValue);
     hold on;
     plot3(successfulSkinThickness(idxMin), successfulStringerThickness(idxMin), successfulH(idxMin),...
-      'rp', 'MarkerSize', 12, 'MarkerFaceColor', 'r');
-
+          'kp', 'MarkerSize', 12, 'MarkerFaceColor', 'k');
     legend('Design Points', 'Minimum Objective');
 
     skinThickness = successfulSkinThickness(idxMin);
