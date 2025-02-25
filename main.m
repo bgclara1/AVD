@@ -174,82 +174,57 @@ BM_land = cumtrapz(SFland);
             shearYieldStress = 310*1e6;
             tensileYieldStress = 490*1e+06;
 
+    % REMEMBER TO COPY INTO OPTIMISATION THING
 
 % -----------------------------------------------------------------
 
-[~, ~, ~, skinThickness, ~] = plotShearFlow(shearYieldStressSkin);
+[~, ~, ~, minSkinThickness, ~] = plotShearFlow(shearYieldStressSkin);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
-%                   STRINGER OPTIMISATION
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-r = 3.2425; % fuselage radius
-C = 2*pi*r;
-
-% skinThickness, spacing, t_s, h, L
-x0 = [0.005, 0.2, 0.003, 0.005, 0.03];
-
-lb = [0.001, 0.1, 0.0013, 0.003, 0.01];
-ub = [0.01, 0.4, 0.005, 0.01, 0.07];
-
-
-options = optimoptions('fmincon', 'Display', 'iter', 'Algorithm', 'sqp',...
-                       'MaxIterations', 1000, 'MaxFunctionEvaluations', 5000);
-
-[x_opt, mass_opt] = fmincon(@(x)objective(x, density, r), x0, [], [], [], [], lb, ub,...
-                            @(x)constraints(x, shearYieldStressSkin, tensileYieldStressStringer, ESkin,EStringer, L_eff, Ks, nu, r), options);
-
-%% Display Optimized Results
-disp('Optimized Variables:');
-disp(['Skin Thickness: ', num2str(x_opt(1)), ' m']);
-disp(['Stringer Spacing: ', num2str(x_opt(2)), ' m']);
-disp(['Stringer Thickness: ', num2str(x_opt(3)), ' m']);
-disp(['Stringer Height: ', num2str(x_opt(4)), ' m']);
-disp(['Stringer Flange Length: ', num2str(x_opt(5)), ' m']);
-disp(['Optimized Fuselage Mass per Unit Length: ', num2str(mass_opt), ' kg/m']);
-
-
-
-% ----------------------------------------------------------------------------------
-
-
-            skinThickness = x_opt(1);
-            stringerSpacing = x_opt(2);
-            stringerThickness  = x_opt(3);
-            h = x_opt(4);
-            L = x_opt(5);
-
-
-stringerArea = ZStringerArea(stringerThickness, h, L); % h height, L flange length
 
 % Shear Flow plot
 [theta, PlotSFlow, circle, ~, totalSFlow] = plotShearFlow(shearYieldStress);
-                % 
-                % figure;
-                % polarplot(theta,PlotSFlow,'b-','LineWidth', 3)
-                % hold on;
-                % polarplot(theta,circle,'r-', 'LineWidth', 2)
-                % ax = gca; 
-                % ax.ThetaZeroLocation = 'top';
-                % ax.ThetaDir = 'clockwise';
-                % title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
-                % grid on;
-                % legend('Shear Flow', 'Fuselage', 'Location', 'best');
-                % 
+
+                figure;
+                markerSize = 7;
+                scatter(x, y,markerSize, 'filled');
+                grid on;
+                axis equal; 
+                margin = 0.3 * max(abs([x, y])); 
+                xlim([-max(abs(x)) - margin, max(abs(x)) + margin]);
+                ylim([-max(abs(y)) - margin, max(abs(y)) + margin]);
+                xlabel('X-axis', 'FontSize', 12, 'FontWeight', 'bold');
+                ylabel('Y-axis', 'FontSize', 12, 'FontWeight', 'bold');
+                title('Stringer Positions Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
+
+
+                figure;
+                polarplot(theta,PlotSFlow,'b-','LineWidth', 3)
+                hold on;
+                polarplot(theta,circle,'r-', 'LineWidth', 2)
+                ax = gca; 
+                ax.ThetaZeroLocation = 'top';
+                ax.ThetaDir = 'clockwise';
+                title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
+                grid on;
+                legend('Shear Flow', 'Fuselage', 'Location', 'best');
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+%                     STRINGER OPTIMISATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+
+%[skinThickness, stringerSpacing] = stringerOptimisation(density);
+skinThickness = 0.0042;
+stringerSpacing = 0.1;
 
 
 % Stringer Diagram
-[x,y,numStringers] = stringerPlot(stringerSpacing);
+[x, y, numStringers] = stringerPlot(stringerSpacing);
 
-                % figure;
-                % scatter(x, y, 'filled');
-                % grid on;
-                % axis equal; 
-                % margin = 0.3 * max(abs([x, y])); 
-                % xlim([-max(abs(x)) - margin, max(abs(x)) + margin]);
-                % ylim([-max(abs(y)) - margin, max(abs(y)) + margin]);
-                % xlabel('X-axis', 'FontSize', 12, 'FontWeight', 'bold');
-                % ylabel('Y-axis', 'FontSize', 12, 'FontWeight', 'bold');
-                % title('Stringer Positions Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
+
+%stringerArea = ZStringerArea(stringerThickness, h, L); % h height, L flange length
 
 % Direct stress plot
 directStress = stressPlot(skinThickness,stringerArea,y,numStringers,density);
@@ -259,7 +234,7 @@ directStress = stressPlot(skinThickness,stringerArea,y,numStringers,density);
                 % hold on;
                 % grid on;
                 % plot3(x, zeros(size(x)), y, 'r-', 'LineWidth', 2);
-                % quiver3(x, zeros(size(x)), y,zeros(size(x)), directStress, zeros(size(x)),'b', 'LineWidth', 1.5, 'MaxHeadSize', 0.5);
+                % quiver3(x, zeros(size(x)), y,zeros(size(x)), directStress, zeros(size(x)),'b', 'LineWidth', 1, 'MaxHeadSize', 0.5);
                 % xlabel('z');
                 % ylabel('y');
                 % zlabel('Direct stress \sigma_z (MPa)');
@@ -268,11 +243,12 @@ directStress = stressPlot(skinThickness,stringerArea,y,numStringers,density);
                 % legend('Fuselage cross-section', 'Direct stress at each stringer');
                 % axis equal;
 
+
 %skinThickness = 0.01; %important var for skin bay buckling
 
 %structural compliance
-[stringerStressCompliant,stringerEulerCompliant] = checkStringer(directStress, tensileYieldStress,E, b, h, stringerArea, L_eff);
-[skinYieldCompliant, skinBucklingCompliant] = checkSkinBay(totalSFlow, skinThickness, stringerSpacing, shearYieldStress, Ks, E, nu);
+[stringerStressCompliant,stringerEulerCompliant] = checkStringer(directStress, tensileYieldStressStringer,EStringer, b, h, stringerArea, L_eff);
+[skinYieldCompliant, skinBucklingCompliant] = checkSkinBay(totalSFlow, skinThickness, stringerSpacing, shearYieldStressSkin, Ks, ESkin, nu);
 structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, skinYieldCompliant, skinBucklingCompliant]) % 0 false, 1 true
 
 
@@ -456,4 +432,7 @@ optimal_thickness = frameThicknessMatrix(row, col);
 % 
 % 
 % 
+
+
+
 
