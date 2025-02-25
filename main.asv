@@ -67,61 +67,61 @@ SFland = getLandingSF(xDiscr, inertialAndAirWithReaction);
 
 
 %------------- Plots --------------------------------
-
-
-                    figure;
-                    plot(xDiscr, InertialLoads, 'LineWidth', 1.5)
-                    title('Inertial Loads')                  
-
-                     figure;
-                    bar(xDiscr, InertialLoads2)
-                    title('Inertial Loads')
-
-                    figure;
-                    bar(xDiscr, aero)
-                    hold on;
-                    bar(xDiscr,aero15)
-                    title('Aero Loads')
-
-                    figure;
-                    plot(xDiscr, aeroSF)
-                    title('Aero Loads')
-
-                    figure;
-                    plot(xDiscr, fuselageSF)
-                    title('Fuselage Only SF')
-
-                    figure;
-                    plot(xDiscr, SF_3_75)
-                    title('Aero SF at load factor 3.75')
-
-                    figure;
-                    plot(xDiscr, SF_1_5)
-                    title('Aero SF at load factor - 1.5')
-
-                    figure;
-                    stairs(xDiscr, SF_OEI)
-                    title('OEI SF')
-
-
-                    figure;
-                    stairs(xDiscr, comboSF)
-                    title('combo SF')
-
-                    figure;
-                    plot(xDiscr, SFland)
-                    title('SF at landing')
                     % 
-                    figure;
-                    plot(xDiscr, SF_3_75)
-                    %hold on;
-                    %plot(xDiscr,SF_1_5)
-                    hold on;
-                    plot(xDiscr, SF_OEI)
-                    hold on;
-                    plot(xDiscr, SFland)
-                    title('SF Plot')
-                    legend('n=3.75','OEI', 'landing')
+                    % 
+                    % figure;
+                    % plot(xDiscr, InertialLoads, 'LineWidth', 1.5)
+                    % title('Inertial Loads')                  
+                    % 
+                    %  figure;
+                    % bar(xDiscr, InertialLoads2)
+                    % title('Inertial Loads')
+                    % 
+                    % figure;
+                    % bar(xDiscr, aero)
+                    % hold on;
+                    % bar(xDiscr,aero15)
+                    % title('Aero Loads')
+                    % 
+                    % figure;
+                    % plot(xDiscr, aeroSF)
+                    % title('Aero Loads')
+                    % 
+                    % figure;
+                    % plot(xDiscr, fuselageSF)
+                    % title('Fuselage Only SF')
+                    % 
+                    % figure;
+                    % plot(xDiscr, SF_3_75)
+                    % title('Aero SF at load factor 3.75')
+                    % 
+                    % figure;
+                    % plot(xDiscr, SF_1_5)
+                    % title('Aero SF at load factor - 1.5')
+                    % 
+                    % figure;
+                    % stairs(xDiscr, SF_OEI)
+                    % title('OEI SF')
+                    % 
+                    % 
+                    % figure;
+                    % stairs(xDiscr, comboSF)
+                    % title('combo SF')
+                    % 
+                    % figure;
+                    % plot(xDiscr, SFland)
+                    % title('SF at landing')
+                    % % 
+                    % figure;
+                    % plot(xDiscr, SF_3_75)
+                    % %hold on;
+                    % %plot(xDiscr,SF_1_5)
+                    % hold on;
+                    % plot(xDiscr, SF_OEI)
+                    % hold on;
+                    % plot(xDiscr, SFland)
+                    % title('SF Plot')
+                    % legend('n=3.75','OEI', 'landing')
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
@@ -401,10 +401,7 @@ legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
 title('Rear Spar Frame');
 grid on;
 
-
-%front emp frame
-
-P = 0;
+P = abs(SF_3_75(31));
 Q = 0; 
 T = 0;   
 

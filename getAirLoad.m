@@ -50,7 +50,8 @@ function [xDiscr,aero,aero15] = getAirLoad()
     aero = zeros(1,80);
     aero(31) = forceRF;
     aero(39) = forceRR;
-    aero(71) = LHT;
+    aero(71) = LHT/2;
+    aero(75) = LHT/2;
 
     %------------ - 1.5 -------------------------------------
 
@@ -69,8 +70,9 @@ function [xDiscr,aero,aero15] = getAirLoad()
     aero15 = zeros(1,80);
     aero15(31) = forceRF15;
     aero15(39) = forceRR15;
-    aero15(71) = LHT*-1;
-    % 
+    aero15(71) = LHT/2*-1;
+    aero15(71) = LHT/2*-1;
+    
     % figure;
     % bar(xDiscr,aero);
     % hold on;
