@@ -1,4 +1,4 @@
-function [skinThickness,stringerThickness,h,t_s] = stringerOptimisation(density)
+function [skinThickness,stringerThickness,h,t_s,L,stringerSpacing] = stringerOptimisation(density)
       
     %stringer
             tensileYieldStressStringer = 490*1e+06;
@@ -100,5 +100,7 @@ function [skinThickness,stringerThickness,h,t_s] = stringerOptimisation(density)
     stringerThickness = successfulStringerThickness(idxMin);
     h = successfulH(idxMin);
     t_s = successfulStringerThickness(idxMin);
+    L = successfulL(idxMin);
+    stringerSpacing = successfulStringerSpacing(idxMin);
 
 end

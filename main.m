@@ -183,11 +183,12 @@ BM_land = cumtrapz(SFland);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 
-%[skinThickness, stringerSpacing,h, stringerThickness] = stringerOptimisation(density);
-skinThickness = 0.0042;
-stringerSpacing = 0.1;
-h = 0.05;
-stringerThickness = 0.0025;
+ [skinThickness,stringerThickness,h,t_s,L,stringerSpacing] = stringerOptimisation(density);
+
+% skinThickness = 0.0042;
+% stringerSpacing = 0.1;
+% h = 0.05;
+% stringerThickness = 0.0025;
 
 % Stringer Diagram
 [x, y, numStringers] = stringerPlot(stringerSpacing);
