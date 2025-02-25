@@ -47,14 +47,18 @@ aeroSF = getAirSF(xDiscr,aero);
             % thing shoot above zero
 
 
-[inertialAndAirWithReaction, comboSF] = combineSF(xDiscr,InertialLoads2,aero); % effectively the n=3.75 case
+[inertialAndAirWithReaction375, comboSF375] = combineSF375(xDiscr,InertialLoads2,aero); % effectively the n=3.75 case
+
+[inertialAndAirWithReactionNeg15, comboSFneg15] = combineSFneg15(xDiscr,InertialLoads2,aero); % effectively the n=3.75 case
+
+[inertialAndAirWithReactionLanding, comboSFLanding] = combineSFLanding(xDiscr,InertialLoads2,aero); % effectively the n=3.75 case
 
 
 % n = 3.75 SF plot
-SF_3_75 = getSF_3_75(inertialAndAirWithReaction) ;   %combines the air and fuselage SF at 3.75 loading
+SF_3_75 = getSF_3_75(inertialAndAirWithReaction375) ;   %combines the air and fuselage SF at 3.75 loading
 
 % n = -1.5 SF plot
-SF_1_5 = getSF_1_5(xDiscr, aero15,inertialAndAirWithReaction);
+SF_1_5 = getSF_1_5(xDiscr, aero15,inertialAndAirWithReactionNeg15);
 
 % OEI SF plot 
 SF_OEI = getOEI(inertialAndAirWithReaction);
@@ -63,7 +67,7 @@ SF_OEI = getOEI(inertialAndAirWithReaction);
 
 
 % Landing SF plot 
-SFland = getLandingSF(xDiscr, inertialAndAirWithReaction);
+SFland = getLandingSF(xDiscr, inertialAndAirWithReactionLanding);
 
 %Total SF plot
 %plotFinalSF(xDiscr, SF_3_75, SF_1_5, SF_OEI,SFland);
@@ -72,59 +76,59 @@ SFland = getLandingSF(xDiscr, inertialAndAirWithReaction);
 %------------- Plots --------------------------------
 
 
-                    % figure;
-                    % plot(xDiscr, InertialLoads, 'LineWidth', 1.5)
-                    % title('Inertial Loads')                  
+                    figure;
+                    plot(xDiscr, InertialLoads, 'LineWidth', 1.5)
+                    title('Inertial Loads')                  
+
+                     figure;
+                    bar(xDiscr, InertialLoads2)
+                    title('Inertial Loads')
+
+                    figure;
+                    bar(xDiscr, aero)
+                    hold on;
+                    bar(xDiscr,aero15)
+                    title('Aero Loads')
+
+                    figure;
+                    plot(xDiscr, aeroSF)
+                    title('Aero Loads')
+
+                    figure;
+                    plot(xDiscr, fuselageSF)
+                    title('Fuselage Only SF')
+
+                    figure;
+                    plot(xDiscr, SF_3_75)
+                    title('Aero SF at load factor 3.75')
+
+                    figure;
+                    plot(xDiscr, SF_1_5)
+                    title('Aero SF at load factor - 1.5')
+
+                    figure;
+                    stairs(xDiscr, SF_OEI)
+                    title('OEI SF')
+
+
+                    figure;
+                    stairs(xDiscr, comboSF)
+                    title('combo SF')
+
+                    figure;
+                    plot(xDiscr, SFland)
+                    title('SF at landing')
                     % 
-                    %  figure;
-                    % bar(xDiscr, InertialLoads2)
-                    % title('Inertial Loads')
-                    % 
-                    % figure;
-                    % bar(xDiscr, aero)
-                    % hold on;
-                    % bar(xDiscr,aero15)
-                    % title('Aero Loads')
-                    % 
-                    % figure;
-                    % plot(xDiscr, aeroSF)
-                    % title('Aero Loads')
-                    % 
-                    % figure;
-                    % plot(xDiscr, fuselageSF)
-                    % title('Fuselage Only SF')
-                    % 
-                    % figure;
-                    % plot(xDiscr, SF_3_75)
-                    % title('Aero SF at load factor 3.75')
-                    % 
-                    % figure;
-                    % plot(xDiscr, SF_1_5)
-                    % title('Aero SF at load factor - 1.5')
-                    % 
-                    % figure;
-                    % stairs(xDiscr, SF_OEI)
-                    % title('OEI SF')
-                    % 
-                    % 
-                    % figure;
-                    % stairs(xDiscr, comboSF)
-                    % title('combo SF')
-                    % 
-                    % figure;
-                    % plot(xDiscr, SFland)
-                    % title('SF at landing')
-                    % % 
-                    % figure;
-                    % plot(xDiscr, SF_3_75)
-                    % %hold on;
-                    % %plot(xDiscr,SF_1_5)
-                    % hold on;
-                    % plot(xDiscr, SF_OEI)
-                    % hold on;
-                    % plot(xDiscr, SFland)
-                    % title('SF Plot')
-                    % legend('n=3.75','OEI', 'landing')
+                    figure;
+                    plot(xDiscr, SF_3_75)
+                    %hold on;
+                    %plot(xDiscr,SF_1_5)
+                    hold on;
+                    plot(xDiscr, SF_OEI)
+                    hold on;
+                    plot(xDiscr, SFland)
+                    title('SF Plot')
+                    legend('n=3.75','OEI', 'landing')
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
@@ -354,7 +358,6 @@ optimal_thickness = frameThicknessMatrix(row, col);
                     y_c = h/2;
                     I_f = b*h^3/12;
 
-
 %   Q = radial
 %   P = tangential
 %   T = torque
@@ -362,7 +365,6 @@ optimal_thickness = frameThicknessMatrix(row, col);
 %   N = normal force
 %   S = shear force
 %   M = moment
-
 
 % Wing front Spar 
 

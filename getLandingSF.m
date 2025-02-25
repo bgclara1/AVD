@@ -38,3 +38,6 @@ function SFland = getLandingSF(xDiscr, total)
     % figure;
     % plot(xDiscr,SFland)
 end
+
+
+

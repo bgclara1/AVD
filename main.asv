@@ -59,6 +59,9 @@ SF_1_5 = getSF_1_5(xDiscr, aero15,inertialAndAirWithReaction);
 % OEI SF plot 
 SF_OEI = getOEI(inertialAndAirWithReaction);
 
+%change param to inertial Load to recalc air for landing
+
+
 % Landing SF plot 
 SFland = getLandingSF(xDiscr, inertialAndAirWithReaction);
 
@@ -351,7 +354,6 @@ optimal_thickness = frameThicknessMatrix(row, col);
                     y_c = h/2;
                     I_f = b*h^3/12;
 
-
 %   Q = radial
 %   P = tangential
 %   T = torque
@@ -359,7 +361,6 @@ optimal_thickness = frameThicknessMatrix(row, col);
 %   N = normal force
 %   S = shear force
 %   M = moment
-
 
 % Wing front Spar 
 
@@ -474,7 +475,29 @@ maxMRTS = max(Mf);
 
 %[h,l,t] = heavyFrameOptimisation(maxN,maxS,maxM);
 
-[h,l,t] = heavyFrameOptimisation(maxNFWS,maxSFWS,maxMFWS);
+disp('Iterating Front Spar Wing ')
+[hFWS,lFWS,tFWS] = heavyFrameOptimisation(maxNFWS,maxSFWS,maxMFWS);
+disp('Iterating Rear Spar Wing ')
+[hRWS,lRWS,tRWS] = heavyFrameOptimisation(maxNRWS,maxSRWS,maxMRWS);
+disp('Iterating Front Spar Tail ')
+[hFTS,lFTS,tFTS] = heavyFrameOptimisation(maxNFTS,maxSFTS,maxMFTS);
+disp('Iterating Rear Spar Tail ')
+[hRTS,lRTS,tRTS] = heavyFrameOptimisation(maxNRTS,maxSRTS,maxMRTS);
+disp('done ')
+
+% [hFWS,lFWS,tFWS] 
+% [hRWS,lRWS,tRWS]
+% [hFTS,lFTS,tFTS]
+% [hRTS,lRTS,tRTS] 
+
+
+
+
+
+
+
+
+
 
 
 
