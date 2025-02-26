@@ -23,6 +23,7 @@ function [total,comboSF] = combineSF375(xDiscr,InertialLoads,LHT)
 
 
     sparReaction = zeros(1,80);
+    disp('3.75')
     sparReaction(31) = forceRF;
     sparReaction(39) = forceRR;
 

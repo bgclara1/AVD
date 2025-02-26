@@ -34,7 +34,7 @@ function [skinThickness,stringerThickness,h,L,stringerSpacing] = stringerOptimis
 
     [~, ~, ~, ~, totalSFlow] = plotShearFlow(shearYieldStressSkin);
     
-    fprintf('Total full iterations to try: %d\n', length(skinThicknessRange));
+    disp('Total full iterations to try: ',(skinThicknessRange))
     success = [];
     for i = 1:length(skinThicknessRange)
         disp(['Starting full iteration index: ', num2str(i)]);

@@ -31,7 +31,7 @@ set(groot, 'defaultAxesFontName','Cambria Math')
 
 % ======== get air load plot ============================
 
-[xDiscr,LHT,LHT15,LHTLanding] = getAirLoad()
+[xDiscr,LHT,LHT15,LHTLanding,LHTOEI] = getAirLoad();
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
 %                           SF PLOTS 
@@ -50,6 +50,9 @@ set(groot, 'defaultAxesFontName','Cambria Math')
 
 [inertialAndAirWithReactionLanding, comboSFLanding] = combineSFLanding(xDiscr,InertialLoads,LHTLanding);
 
+
+[inertialAndAirWithReactionOEI, comboSFOEI] = combineOEI(xDiscr,InertialLoads,LHTOEI);
+
 % n = 3.75 SF plot
 SF_3_75 = getSF_3_75(inertialAndAirWithReaction375) ;   %combines the air and fuselage SF at 3.75 loading
 
@@ -57,7 +60,7 @@ SF_3_75 = getSF_3_75(inertialAndAirWithReaction375) ;   %combines the air and fu
 SF_1_5 = getSF_1_5(xDiscr, aero15,inertialAndAirWithReactionNeg15);
 
 % OEI SF plot 
-SF_OEI = getOEI(inertialAndAirWithReaction375);
+SF_OEI = getOEI(xDiscr,inertialAndAirWithReactionOEI);
 
 %change param to inertial Load to recalc air for landing
 
@@ -103,7 +106,7 @@ SFland = getLandingSF(xDiscr, inertialAndAirWithReactionLanding);
                     title('Aero SF at load factor - 1.5')
                     % 
                     figure;
-                    stairs(xDiscr, SF_OEI)
+                    plot(xDiscr, SF_OEI)
                     title('OEI SF')
 
                     % 
@@ -132,21 +135,35 @@ SFland = getLandingSF(xDiscr, inertialAndAirWithReactionLanding);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-BMInert = cumtrapz(fuselageSF);
-BM_3_75 = cumtrapz(SF_3_75);
-BM_OEI = cumtrapz(SF_OEI);
-BM_land = cumtrapz(SFland);
+midpoint = floor(length(SF_3_75) / 2);
+BM_3_75 = zeros(size(SF_3_75));
+BM_3_75(1:midpoint) = cumtrapz(SF_3_75(1:midpoint));
+BM_3_75(end:-1:midpoint) = cumtrapz(flip(SF_3_75(midpoint:end)));
+BM_3_75(end:-1:midpoint) = -BM_3_75(end:-1:midpoint); % Ensure continuity
+BM_1_5 = zeros(size(SF_1_5));
+BM_1_5(1:midpoint) = cumtrapz(SF_1_5(1:midpoint));
+BM_1_5(end:-1:midpoint) = cumtrapz(flip(SF_1_5(midpoint:end)));
+BM_1_5(end:-1:midpoint) = -BM_1_5(end:-1:midpoint);
+BM_OEI = zeros(size(SF_OEI));
+BM_OEI(1:midpoint) = cumtrapz(SF_OEI(1:midpoint));
+BM_OEI(end:-1:midpoint) = cumtrapz(flip(SF_OEI(midpoint:end)));
+BM_OEI(end:-1:midpoint) = -BM_OEI(end:-1:midpoint);
+BM_land = zeros(size(SFland));
+BM_land(1:midpoint) = cumtrapz(SFland(1:midpoint));
+BM_land(end:-1:midpoint) = cumtrapz(flip(SFland(midpoint:end)));
+BM_land(end:-1:midpoint) = -BM_land(end:-1:midpoint);
 
-% figure;
-%                     plot(xDiscr, BM_3_75)
-%                     %hold on;
-%                     %plot(xDiscr,BMInert)
-%                     hold on;
-%                     plot(xDiscr, BM_OEI)
-%                     hold on;
-%                     plot(xDiscr, BM_land)
-%                     title('BM Plot')
-%                     legend('n=3.75','OEI', 'landing')
+
+figure;
+                    plot(xDiscr, BM_3_75)
+                    hold on;
+                    plot(xDiscr,BM_1_5)
+                    hold on;
+                    plot(xDiscr, BM_OEI)
+                    hold on;
+                    plot(xDiscr, BM_land)
+                    title('BM Plot')
+                    legend('n=3.75','OEI', 'landing')
 
 
 
@@ -186,15 +203,15 @@ BM_land = cumtrapz(SFland);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 
- %[skinThickness,stringerThickness,h,L,stringerSpacing] = stringerOptimisation(density)
+ [skinThickness,stringerThickness,h,L,stringerSpacing] = stringerOptimisation(density)
 
 
-skinThickness = 0.0042;
-stringerSpacing = 0.1;
-t_s = stringerSpacing;
-h = 0.003;
-stringerThickness = 0.0025;
-L = 0.01;
+% skinThickness = 0.0042;
+% stringerSpacing = 0.1;
+% t_s = stringerSpacing;
+% h = 0.003;
+% stringerThickness = 0.0025;
+% L = 0.01;
 
 stringerArea = ZStringerArea(stringerThickness, h, L); % h height, L flange length
 
@@ -207,54 +224,54 @@ stringerArea = ZStringerArea(stringerThickness, h, L); % h height, L flange leng
 % Shear Flow plot
 [theta, PlotSFlow, circle, ~, totalSFlow] = plotShearFlow(shearYieldStress);
 
-                % figure;
-                % markerSize = 7;
-                % scatter(x, y,markerSize, 'filled');
-                % grid on;
-                % axis equal; 
-                % margin = 0.3 * max(abs([x, y])); 
-                % xlim([-max(abs(x)) - margin, max(abs(x)) + margin]);
-                % ylim([-max(abs(y)) - margin, max(abs(y)) + margin]);
-                % xlabel('X-axis', 'FontSize', 12, 'FontWeight', 'bold');
-                % ylabel('Y-axis', 'FontSize', 12, 'FontWeight', 'bold');
-                % title('Stringer Positions Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
-                % 
-                % 
-                % figure;
-                % polarplot(theta,PlotSFlow,'b-','LineWidth', 3)
-                % hold on;
-                % polarplot(theta,circle,'r-', 'LineWidth', 2)
-                % ax = gca; 
-                % ax.ThetaZeroLocation = 'top';
-                % ax.ThetaDir = 'clockwise';
-                % title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
-                % grid on;
-                % legend('Shear Flow', 'Fuselage', 'Location', 'best');
-                % 
-                % 
+                figure;
+                markerSize = 7;
+                scatter(x, y,markerSize, 'filled');
+                grid on;
+                axis equal; 
+                margin = 0.3 * max(abs([x, y])); 
+                xlim([-max(abs(x)) - margin, max(abs(x)) + margin]);
+                ylim([-max(abs(y)) - margin, max(abs(y)) + margin]);
+                xlabel('X-axis', 'FontSize', 12, 'FontWeight', 'bold');
+                ylabel('Y-axis', 'FontSize', 12, 'FontWeight', 'bold');
+                title('Stringer Positions Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
+
+
+                figure;
+                polarplot(theta,PlotSFlow,'b-','LineWidth', 3)
+                hold on;
+                polarplot(theta,circle,'r-', 'LineWidth', 2)
+                ax = gca; 
+                ax.ThetaZeroLocation = 'top';
+                ax.ThetaDir = 'clockwise';
+                title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
+                grid on;
+                legend('Shear Flow', 'Fuselage', 'Location', 'best');
+
+
 
 
 % Direct stress plot
 directStress = stressPlot(skinThickness,stringerArea,y,numStringers,density);
 
 
-                % figure;
-                % hold on;
-                % grid on;
-                % plot3(x, zeros(size(x)), y, 'r-', 'LineWidth', 2);
-                % quiver3(x, zeros(size(x)), y,zeros(size(x)), directStress, zeros(size(x)),'b', 'LineWidth', 1, 'MaxHeadSize', 0.5);
-                % xlabel('z');
-                % ylabel('y');
-                % zlabel('Direct stress \sigma_z (MPa)');
-                % title('Direct stress distribution around fuselage');
-                % view(3);
-                % legend('Fuselage cross-section', 'Direct stress at each stringer');
-                % axis equal;
-                % 
+                figure;
+                hold on;
+                grid on;
+                plot3(x, zeros(size(x)), y, 'r-', 'LineWidth', 2);
+                quiver3(x, zeros(size(x)), y,zeros(size(x)), directStress, zeros(size(x)),'b', 'LineWidth', 1, 'MaxHeadSize', 0.5);
+                xlabel('z');
+                ylabel('y');
+                zlabel('Direct stress \sigma_z (MPa)');
+                title('Direct stress distribution around fuselage');
+                view(3);
+                legend('Fuselage cross-section', 'Direct stress at each stringer');
+                axis equal;
+
 
 %skinThickness = 0.01; %important var for skin bay buckling
 
-
+stringerSpacing = 0.15;
 
 [stringerStressCompliant,stringerEulerCompliant] = checkStringer(directStress, tensileYieldStress,E, h,stringerArea, L, t_s);
 [skinYieldCompliant, skinBucklingCompliant] = checkSkinBay(totalSFlow, skinThickness, stringerSpacing, shearYieldStressSkin, Ks, ESkin, nu);
@@ -268,7 +285,7 @@ structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, sk
 
 % -------------- pressure variables -------------------------------
 
-            D = 6.485;
+           D = 6.485;
             r = D/2;
             cabinPressure = 50507.26;
             atmosphericPressure = 0.1013*1e6;
@@ -310,27 +327,27 @@ structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, sk
 frameThicknessMatrix = frameThickness(I_xx,bRange,hRange);
 frameAreaMatrix = frameArea(frameThicknessMatrix,bRange,hRange);
 
-% [bGrid, hGrid] = meshgrid(bRange, hRange);
-% 
-% figure;
-% surf(bGrid, hGrid, frameThicknessMatrix', 'EdgeColor', 'none'); % Note the transpose
-% xlabel('Flange Width b (m)');
-% ylabel('Web Height h (m)');
-% zlabel('Frame Thickness t_f (m)');
-% title('Frame Thickness with Constant I_{xx}');
-% colorbar;
-% grid on;
-% 
-% 
-% % 3D Plot for frame area
-% figure;
-% surf(bGrid, hGrid, frameAreaMatrix', 'EdgeColor', 'none');
-% xlabel('Flange Width b (m)');
-% ylabel('Web Height h (m)');
-% zlabel('Frame Area A (m^2)');
-% title('Frame Area with Constant I_{xx}');
-% colorbar;
-% grid on;
+[bGrid, hGrid] = meshgrid(bRange, hRange);
+
+figure;
+surf(bGrid, hGrid, frameThicknessMatrix', 'EdgeColor', 'none'); % Note the transpose
+xlabel('Flange Width b (m)');
+ylabel('Web Height h (m)');
+zlabel('Frame Thickness t_f (m)');
+title('Frame Thickness with Constant I_{xx}');
+colorbar;
+grid on;
+
+
+% 3D Plot for frame area
+figure;
+surf(bGrid, hGrid, frameAreaMatrix', 'EdgeColor', 'none');
+xlabel('Flange Width b (m)');
+ylabel('Web Height h (m)');
+zlabel('Frame Area A (m^2)');
+title('Frame Area with Constant I_{xx}');
+colorbar;
+grid on;
 
 % optimal light frame dimensions
 [minArea, idx] = min(frameAreaMatrix(:));
@@ -377,18 +394,18 @@ maxSFWS = max(Sf)
 maxMFWS = max(Mf)
 
 
-% 
-% figure;
-% plot(angle, Nf);
-% hold on;
-% plot(angle, Sf);
-% hold on;
-% plot(angle, Mf);
-% xlabel('Angle around frame (rad)');
-% ylabel('Load Distribution');
-% legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
-% title('Front Wing Spar Frame');
-% grid on;
+
+figure;
+plot(angle, Nf);
+hold on;
+plot(angle, Sf);
+hold on;
+plot(angle, Mf);
+xlabel('Angle around frame (rad)');
+ylabel('Load Distribution');
+legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
+title('Front Wing Spar Frame');
+grid on;
 
 % Rear wing Spar 
 angle = pi*(0:5:360)/180;
@@ -402,17 +419,17 @@ maxNRWS = max(Nf);% maximum N rear wing spar
 maxSRWS = max(Sf);
 maxMRWS = max(Mf);
 
-% figure;
-% plot(angle, Nf);
-% hold on;
-% plot(angle, Sf);
-% hold on;
-% plot(angle, Mf);
-% xlabel('Angle around frame (rad)');
-% ylabel('Load Distribution');
-% legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
-% title('Rear Wing Spar Frame');
-% grid on;
+figure;
+plot(angle, Nf);
+hold on;
+plot(angle, Sf);
+hold on;
+plot(angle, Mf);
+xlabel('Angle around frame (rad)');
+ylabel('Load Distribution');
+legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
+title('Rear Wing Spar Frame');
+grid on;
 
 
 %front emp frame
@@ -428,17 +445,17 @@ maxNFTS = max(Nf);% maximum N front tail spar
 maxSFTS = max(Sf);
 maxMFTS = max(Mf);
 
-% figure;
-% plot(angle, Nf);
-% hold on;
-% plot(angle, Sf);
-% hold on;
-% plot(angle, Mf);
-% legend('Normal Force N_f', 'Shear Force S_f', 'Moment M_f');
-% xlabel('Angle \phi (rad)');
-% ylabel('Force/Moment');
-% title('Front Tailplane Spar Frame');
-% grid on;
+figure;
+plot(angle, Nf);
+hold on;
+plot(angle, Sf);
+hold on;
+plot(angle, Mf);
+legend('Normal Force N_f', 'Shear Force S_f', 'Moment M_f');
+xlabel('Angle \phi (rad)');
+ylabel('Force/Moment');
+title('Front Tailplane Spar Frame');
+grid on;
 
 
 %Rear tailplane frame
@@ -453,19 +470,19 @@ r = 1.805;
 maxNRTS = max(Nf); % maximum N rear tail spar
 maxSRTS = max(Sf);
 maxMRTS = max(Mf);
-% 
-% figure;
-% plot(angle, Nf);
-% hold on;
-% plot(angle, Sf);
-% hold on;
-% plot(angle, Mf);
-% legend('Normal Force N_f', 'Shear Force S_f', 'Moment M_f');
-% xlabel('Angle \phi (rad)');
-% ylabel('Force/Moment');
-% title('Rear Tailplane Spar Frame');
-% grid on;
-% 
+
+figure;
+plot(angle, Nf);
+hold on;
+plot(angle, Sf);
+hold on;
+plot(angle, Mf);
+legend('Normal Force N_f', 'Shear Force S_f', 'Moment M_f');
+xlabel('Angle \phi (rad)');
+ylabel('Force/Moment');
+title('Rear Tailplane Spar Frame');
+grid on;
+
 
 % h     web height
 % l     flange length

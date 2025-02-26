@@ -1,5 +1,5 @@
 
-function [xDiscr,LHT,LHT15,LHTLanding] = getAirLoad()
+function [xDiscr,LHT,LHT15,LHTLanding,LHTOEI] = getAirLoad()
 
     lTot = 80;
 
@@ -43,6 +43,11 @@ function [xDiscr,LHT,LHT15,LHTLanding] = getAirLoad()
 
     MoWLanding = 2.18*Cm*(0.5*rhoC*Vd^2*SrefWing*MAC);
     LHTLanding = (-330800*9.81*(38.8831-30.86)+MoWLanding)/(71.1-30.86);
+
+
+    %---------- OEI -----------------------------------------
+    MoWOEI = 1*Cm*(0.5*rhoC*Vd^2*SrefWing*MAC);
+    LHTOEI = (-330800*9.81*(38.8831-30.86)+MoWOEI)/(71.1-30.86);
 
 
 
