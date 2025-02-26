@@ -1,14 +1,15 @@
-function [total,comboSF] = combineSFneg15(xDiscr,InertialLoads,aero) % effectively the n=3.75 case
+function [total,comboSF] = combineSFneg15(xDiscr,InertialLoads,LHT15) % effectively the n=3.75 case
    
-    totalLoad = sum(InertialLoads)+sum(aero);
+    Load = InertialLoads*-1.5;
+    Load(71) = Load(71) + LHT15/2*-1;
+    Load(75) = Load(75) + LHT15/2*-1;
+    totalLoad = sum(Load);
 
     for i = 1:length(xDiscr)
-        inertialMoments(i) = (InertialLoads(i)+aero(i)) * xDiscr(i);
+        inertialMoments(i) = Load(i) * xDiscr(i);
     end
 
     totalMoment = sum(inertialMoments);
-
-%    fuselageCG = totalMoment/totalLoad;
 
     A = [ 31	39 ;
             1	1];
@@ -24,8 +25,9 @@ function [total,comboSF] = combineSFneg15(xDiscr,InertialLoads,aero) % effective
     sparReaction(39) = forceRR*-1;
 
     for i = 1:length(xDiscr)
-        total(i) = InertialLoads(i)*-1.5 + aero(i) + sparReaction(i);
+        total(i) = Load(i)  + sparReaction(i);
     end
+    
     
 
     comboSF = total(1);

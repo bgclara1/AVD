@@ -27,28 +27,28 @@ set(groot, 'defaultAxesFontName','Cambria Math')
 % ======== get inertial distrobution ====================
 
 [InertialLoads] = getInertialDistro();
-[InertialLoads2] = getInertialDistro2();
+%[InertialLoads2] = getInertialDistro2();
 
 % ======== get air load plot ============================
 
-[xDiscr,aero,aero15,LHT,LHT15,LHTLanding] = getAirLoad();
+[xDiscr,LHT,LHT15,LHTLanding] = getAirLoad()
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
 %                           SF PLOTS 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %  get air SF plot 
-aeroSF = getAirSF(xDiscr,aero);
+%aeroSF = getAirSF(xDiscr,aero);
 
 % get fusealge SF plot
-[fuselageSF,inertialWithReaction] = getFuselageSF(xDiscr,InertialLoads);
 
-[inertialAndAirWithReaction375, comboSF375] = combineSF375(xDiscr,InertialLoads,LHT); % effectively the n=3.75 case
+%[fuselageSF,inertialWithReaction] = getFuselageSF(xDiscr,InertialLoads);
 
-[inertialAndAirWithReactionNeg15, comboSFneg15] = combineSFneg15(xDiscr,InertialLoads,aero); % effectively the n=3.75 case
+[inertialAndAirWithReaction375, comboSF375] = combineSF375(xDiscr,InertialLoads,LHT);
 
-[inertialAndAirWithReactionLanding, comboSFLanding] = combineSFLanding(xDiscr,InertialLoads,LHTLanding); % effectively the n=3.75 case
+[inertialAndAirWithReactionNeg15, comboSFneg15] = combineSFneg15(xDiscr,InertialLoads,LHT15); 
 
+[inertialAndAirWithReactionLanding, comboSFLanding] = combineSFLanding(xDiscr,InertialLoads,LHTLanding);
 
 % n = 3.75 SF plot
 SF_3_75 = getSF_3_75(inertialAndAirWithReaction375) ;   %combines the air and fuselage SF at 3.75 loading
@@ -57,7 +57,7 @@ SF_3_75 = getSF_3_75(inertialAndAirWithReaction375) ;   %combines the air and fu
 SF_1_5 = getSF_1_5(xDiscr, aero15,inertialAndAirWithReactionNeg15);
 
 % OEI SF plot 
-%SF_OEI = getOEI(inertialAndAirWithReaction);
+SF_OEI = getOEI(inertialAndAirWithReaction375);
 
 %change param to inertial Load to recalc air for landing
 
@@ -98,14 +98,14 @@ SFland = getLandingSF(xDiscr, inertialAndAirWithReactionLanding);
                     plot(xDiscr, SF_3_75)
                     title('SF at load factor 3.75')
 
-                    % figure;
-                    % plot(xDiscr, SF_1_5)
-                    % title('Aero SF at load factor - 1.5')
+                    figure;
+                    plot(xDiscr, SF_1_5)
+                    title('Aero SF at load factor - 1.5')
                     % 
-                    % figure;
-                    % stairs(xDiscr, SF_OEI)
-                    % title('OEI SF')
-                    % 
+                    figure;
+                    stairs(xDiscr, SF_OEI)
+                    title('OEI SF')
+
                     % 
                     % figure;
                     % stairs(xDiscr, comboSF)
@@ -114,17 +114,17 @@ SFland = getLandingSF(xDiscr, inertialAndAirWithReactionLanding);
                     figure;
                     plot(xDiscr, SFland)
                     title('SF at landing')
-                    % 
-                    % figure;
-                    % plot(xDiscr, SF_3_75)
-                    % %hold on;
-                    % %plot(xDiscr,SF_1_5)
-                    % hold on;
-                    % plot(xDiscr, SF_OEI)
-                    % hold on;
-                    % plot(xDiscr, SFland)
-                    % title('SF Plot')
-                    % legend('n=3.75','OEI', 'landing')
+
+                    figure;
+                    plot(xDiscr, SF_3_75)
+                    hold on;
+                    plot(xDiscr,SF_1_5)
+                    hold on;
+                    plot(xDiscr, SF_OEI)
+                    hold on;
+                    plot(xDiscr, SFland)
+                    title('SF Plot')
+                    legend('n=3.75','n=-1.5', 'OEI', 'landing')
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   

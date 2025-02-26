@@ -1,5 +1,5 @@
 
-function [xDiscr,aero,aero15,LHT,LHT15,LHTLanding] = getAirLoad()
+function [xDiscr,LHT,LHT15,LHTLanding] = getAirLoad()
 
     lTot = 80;
 
@@ -32,56 +32,16 @@ function [xDiscr,aero,aero15,LHT,LHT15,LHTLanding] = getAirLoad()
     %------------------- 3.75 --------------------------------
     MoW = 3.75*Cm*(0.5*rhoC*Vd^2*SrefWing*MAC);
     LHT = (-330800*9.81*(38.8831-30.86)+MoW)/(71.1-30.86);
-    
-    A = [ xPosFSW	xPosBSW ;
-            1	1];
-    B = [xPosFST*LHT*-1; LHT*-1];
-    
-    
-    X = linsolve(A,B);
-    forceRF = X(1);
-    forceRR = X(2);
-    
-    
-    momentRF = forceRF*xPosFSW;
-    momentRR = forceRR*xPosBSW;
-
-    clear aero
-    aero = zeros(1,80);
-    aero(31) = forceRF;
-    aero(39) = forceRR;
-    aero(71) = LHT/2;
-    aero(75) = LHT/2;
 
     %------------ - 1.5 -------------------------------------
 
     
     MoW15 = -1.5*Cm*(0.5*rhoC*Vd^2*SrefWing*MAC);
     LHT15 = (-330800*9.81*(38.8831-30.86)+MoW15)/(71.1-30.86);
-    
-    A = [ xPosFSW	xPosBSW ;
-            1	1];
-    B = [xPosFST*LHT15; LHT15];
-    
-    X15 = linsolve(A,B);
-    forceRF15 = X15(1);
-    forceRR15 = X15(2);
-    
-    aero15 = zeros(1,80);
-    aero15(31) = forceRF15;
-    aero15(39) = forceRR15;
-    aero15(71) = LHT/2*-1;
-    aero15(71) = LHT/2*-1;
-    
-    % figure;
-    % bar(xDiscr,aero);
-    % hold on;
-    % bar(xDiscr,aero15);
-
 
     %----------- LANDING -------------------------------------
 
-    MoWLanding = 2.18*Cm*(0.5*rho*Vd^2*SrefWing*MAC);
+    MoWLanding = 2.18*Cm*(0.5*rhoC*Vd^2*SrefWing*MAC);
     LHTLanding = (-330800*9.81*(38.8831-30.86)+MoWLanding)/(71.1-30.86);
 
 
