@@ -1,5 +1,5 @@
 
-function [xDiscr,aero,aero15] = getAirLoad()
+function [xDiscr,aero,aero15,LHT,LHT15,LHTLanding] = getAirLoad()
 
     lTot = 80;
 
@@ -77,6 +77,13 @@ function [xDiscr,aero,aero15] = getAirLoad()
     % bar(xDiscr,aero);
     % hold on;
     % bar(xDiscr,aero15);
+
+
+    %----------- LANDING -------------------------------------
+
+    MoWLanding = 2.18*Cm*(0.5*rho*Vd^2*SrefWing*MAC);
+    LHTLanding = (-330800*9.81*(38.8831-30.86)+MoWLanding)/(71.1-30.86);
+
 
 
 end

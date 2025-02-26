@@ -1,31 +1,33 @@
-function [total,comboSF] = combineSF375(xDiscr,InertialLoads,aero)
+function [total,comboSF] = combineSF375(xDiscr,InertialLoads,LHT)
 
-   
-    totalLoad = sum(InertialLoads)+sum(aero);
+    Load = InertialLoads*3.75;
+    Load(71) = Load(71)+ LHT/2;
+    Load(75) = Load(75)+ LHT/2;
+    totalLoad = sum(Load);
 
     for i = 1:length(xDiscr)
-        inertialMoments(i) = (InertialLoads(i)+aero(i)) * xDiscr(i);
+        inertialMoments(i) = Load(i) * xDiscr(i);
     end
 
-    totalMoment = sum(inertialMoments);
+    
 
-%    fuselageCG = totalMoment/totalLoad;
+    totalMoment = sum(inertialMoments);
 
     A = [ 31	39 ;
             1	1];
     B = [totalMoment; totalLoad];
     
     X = linsolve(A,B);
-    forceRF = X(1);
-    forceRR = X(2);
+    forceRF = X(1)*-1;
+    forceRR = X(2)*-1;
 
 
     sparReaction = zeros(1,80);
-    sparReaction(31) = forceRF*-1;
-    sparReaction(39) = forceRR*-1;
+    sparReaction(31) = forceRF;
+    sparReaction(39) = forceRR;
 
     for i = 1:length(xDiscr)
-        total(i) = InertialLoads(i)*3.75 + aero(i) + sparReaction(i);
+        total(i) = Load(i)  + sparReaction(i);
     end
     
 

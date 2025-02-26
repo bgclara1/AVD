@@ -9,9 +9,9 @@ function [h,l,t] = heavyFrameOptimisation(maxN,maxS,maxM)
     lb = [ 0.01, 0.01,0.01];
     ub = [ 0.5, 0.1, 0.1];
     
-    hRange = lb(1):0.01:ub(1);
-    lRange = lb(2):0.01:ub(2);
-    tRange = lb(3):0.01:ub(3);
+    hRange = lb(1):0.005:ub(1);
+    lRange = lb(2):0.003:ub(2);
+    tRange = lb(3):0.003:ub(3);
 
 
     success = [];
@@ -64,7 +64,7 @@ function [h,l,t] = heavyFrameOptimisation(maxN,maxS,maxM)
 
     objectiveValue = successfulArea;
     [~, idxMin] = min(objectiveValue);
-    
+    % 
     % figure;
     % scatter3(successfulH, successfulL, successfulT, 50, objectiveValue, 'filled');
     % xlabel('H');
@@ -76,7 +76,6 @@ function [h,l,t] = heavyFrameOptimisation(maxN,maxS,maxM)
     % hold on;
     % plot3(successfulH(idxMin), successfulL(idxMin), successfulT(idxMin),...
     %   'rp', 'MarkerSize', 12, 'MarkerFaceColor', 'r');
-    % 
     % legend('Design Points', 'Minimum Objective');
 
     h = successfulH(idxMin);

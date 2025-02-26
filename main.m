@@ -31,7 +31,7 @@ set(groot, 'defaultAxesFontName','Cambria Math')
 
 % ======== get air load plot ============================
 
-[xDiscr,aero,aero15] = getAirLoad();
+[xDiscr,aero,aero15,LHT,LHT15,LHTLanding] = getAirLoad();
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
 %                           SF PLOTS 
@@ -41,17 +41,13 @@ set(groot, 'defaultAxesFontName','Cambria Math')
 aeroSF = getAirSF(xDiscr,aero);
 
 % get fusealge SF plot
-[fuselageSF,inertialWithReaction] = getFuselageSF(xDiscr,InertialLoads2);
-            % you get a bump at 31 that looks diff to reports but our aero
-            % load is more disproportional so when u add it on it makes the
-            % thing shoot above zero
+[fuselageSF,inertialWithReaction] = getFuselageSF(xDiscr,InertialLoads);
 
+[inertialAndAirWithReaction375, comboSF375] = combineSF375(xDiscr,InertialLoads,LHT); % effectively the n=3.75 case
 
-[inertialAndAirWithReaction375, comboSF375] = combineSF375(xDiscr,InertialLoads2,aero); % effectively the n=3.75 case
+[inertialAndAirWithReactionNeg15, comboSFneg15] = combineSFneg15(xDiscr,InertialLoads,aero); % effectively the n=3.75 case
 
-[inertialAndAirWithReactionNeg15, comboSFneg15] = combineSFneg15(xDiscr,InertialLoads2,aero); % effectively the n=3.75 case
-
-[inertialAndAirWithReactionLanding, comboSFLanding] = combineSFLanding(xDiscr,InertialLoads2,aero); % effectively the n=3.75 case
+[inertialAndAirWithReactionLanding, comboSFLanding] = combineSFLanding(xDiscr,InertialLoads,LHTLanding); % effectively the n=3.75 case
 
 
 % n = 3.75 SF plot
@@ -61,7 +57,7 @@ SF_3_75 = getSF_3_75(inertialAndAirWithReaction375) ;   %combines the air and fu
 SF_1_5 = getSF_1_5(xDiscr, aero15,inertialAndAirWithReactionNeg15);
 
 % OEI SF plot 
-SF_OEI = getOEI(inertialAndAirWithReaction);
+%SF_OEI = getOEI(inertialAndAirWithReaction);
 
 %change param to inertial Load to recalc air for landing
 
@@ -94,41 +90,41 @@ SFland = getLandingSF(xDiscr, inertialAndAirWithReactionLanding);
                     plot(xDiscr, aeroSF)
                     title('Aero Loads')
 
-                    figure;
-                    plot(xDiscr, fuselageSF)
-                    title('Fuselage Only SF')
+                    % figure;
+                    % plot(xDiscr, fuselageSF)
+                    % title('Fuselage Only SF')
 
                     figure;
                     plot(xDiscr, SF_3_75)
-                    title('Aero SF at load factor 3.75')
+                    title('SF at load factor 3.75')
 
-                    figure;
-                    plot(xDiscr, SF_1_5)
-                    title('Aero SF at load factor - 1.5')
-
-                    figure;
-                    stairs(xDiscr, SF_OEI)
-                    title('OEI SF')
-
-
-                    figure;
-                    stairs(xDiscr, comboSF)
-                    title('combo SF')
-
+                    % figure;
+                    % plot(xDiscr, SF_1_5)
+                    % title('Aero SF at load factor - 1.5')
+                    % 
+                    % figure;
+                    % stairs(xDiscr, SF_OEI)
+                    % title('OEI SF')
+                    % 
+                    % 
+                    % figure;
+                    % stairs(xDiscr, comboSF)
+                    % title('combo SF')
+                    % 
                     figure;
                     plot(xDiscr, SFland)
                     title('SF at landing')
                     % 
-                    figure;
-                    plot(xDiscr, SF_3_75)
-                    %hold on;
-                    %plot(xDiscr,SF_1_5)
-                    hold on;
-                    plot(xDiscr, SF_OEI)
-                    hold on;
-                    plot(xDiscr, SFland)
-                    title('SF Plot')
-                    legend('n=3.75','OEI', 'landing')
+                    % figure;
+                    % plot(xDiscr, SF_3_75)
+                    % %hold on;
+                    % %plot(xDiscr,SF_1_5)
+                    % hold on;
+                    % plot(xDiscr, SF_OEI)
+                    % hold on;
+                    % plot(xDiscr, SFland)
+                    % title('SF Plot')
+                    % legend('n=3.75','OEI', 'landing')
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
@@ -381,7 +377,7 @@ maxSFWS = max(Sf)
 maxMFWS = max(Mf)
 
 
-
+% 
 % figure;
 % plot(angle, Nf);
 % hold on;
