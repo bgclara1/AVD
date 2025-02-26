@@ -1,4 +1,4 @@
-function SF_1_5 = getSF_1_5(xDiscr, aero15,total)
+function SF_1_5 = getSF_1_5(xDiscr,total)
 
 
     SF_1_5 = total(1);

@@ -1,4 +1,5 @@
 close all;
+clear;
 
 %{
 
@@ -57,7 +58,7 @@ set(groot, 'defaultAxesFontName','Cambria Math')
 SF_3_75 = getSF_3_75(inertialAndAirWithReaction375) ;   %combines the air and fuselage SF at 3.75 loading
 
 % n = -1.5 SF plot
-SF_1_5 = getSF_1_5(xDiscr, aero15,inertialAndAirWithReactionNeg15);
+SF_1_5 = getSF_1_5(xDiscr, inertialAndAirWithReactionNeg15);
 
 % OEI SF plot 
 SF_OEI = getOEI(xDiscr,inertialAndAirWithReactionOEI);
@@ -79,19 +80,19 @@ SFland = getLandingSF(xDiscr, inertialAndAirWithReactionLanding);
                     plot(xDiscr, InertialLoads, 'LineWidth', 1.5)
                     title('Inertial Loads')                  
 
-                     figure;
-                    bar(xDiscr, InertialLoads2)
-                    title('Inertial Loads')
-
-                    figure;
-                    bar(xDiscr, aero)
-                    hold on;
-                    bar(xDiscr,aero15)
-                    title('Aero Loads')
-
-                    figure;
-                    plot(xDiscr, aeroSF)
-                    title('Aero Loads')
+                    %  figure;
+                    % bar(xDiscr, InertialLoads)
+                    % title('Inertial Loads')
+                    % 
+                    % figure;
+                    % bar(xDiscr, aero)
+                    % hold on;
+                    % bar(xDiscr,aero15)
+                    % title('Aero Loads')
+                    % 
+                    % figure;
+                    % plot(xDiscr, aeroSF)
+                    % title('Aero Loads')
 
                     % figure;
                     % plot(xDiscr, fuselageSF)
