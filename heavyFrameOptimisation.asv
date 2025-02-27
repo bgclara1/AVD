@@ -1,16 +1,16 @@
 function [h, b, c,  t] = heavyFrameOptimisation(maxN, maxS, maxM)
      
-    tensileYieldStressFrame = 310e6;
-    shearYieldStressFrame = 250e6;
+    tensileYieldStressFrame = 400e6;
+    shearYieldStressFrame = 300e6;
 
      % [Web height, Bottom flange width, Top flange width, Base thickness]
-    lb = [0.001, 0.001, 0.001, 0.003]; 
-    ub = [0.5, 0.5,0.5, 0.02];    
+    lb = [0.01, 0.01, 0.01, 0.003]; 
+    ub = [0.1, 0.2,0.2, 0.01];    
 
-    hRange = linspace(lb(1), ub(1), 75);
-    bRange = linspace(lb(2), ub(2), 75);
-    cRange = linspace(lb(3), ub(3), 75);
-    tRange = linspace(lb(4), ub(4), 75);
+    hRange = linspace(lb(1), ub(1), 25);
+    bRange = linspace(lb(2), ub(2), 25);
+    cRange = linspace(lb(3), ub(3), 25);
+    tRange = linspace(lb(4), ub(4), 15);
 
     success = [];
     for i = 1:length(hRange)
@@ -28,16 +28,13 @@ function [h, b, c,  t] = heavyFrameOptimisation(maxN, maxS, maxM)
                     if (currentC / currentB < 1.5) || (currentC / currentB > 4)
                         continue; % Ensure currentC is 1.5 to 4 times bigger than currentB
                     end
-                    if (currentC / currentT < 4) || (currentC / currentT > 15)
-                        continue; % Ensure currentC is 1.5 to 4 times bigger than currentB
-                    end
                                         % Compute cross-section properties
                     [currentFrameArea, currentFrameIxx] = OmegaFrameProps(currentH, currentB, currentC, currentT);
 
                     % Structural Compliance Checks
                     directStressCompliant = maxN <= tensileYieldStressFrame * currentFrameArea;
-                    shearStressCompliant = maxS <= shearYieldStressFrame * currentFrameArea;
-                    bendingStressCompliant = (maxM/currentFrameIxx)*(currentH/2) <= tensileYieldStressFrame ;
+                    shearStressCompliant = maxS <= shearYieldStressFrame * currentH * currentT;
+                    bendingStressCompliant = maxM <= tensileYieldStressFrame * currentFrameIxx / (currentH / 2);
 
                     structurallyCompliant = all([directStressCompliant, shearStressCompliant, bendingStressCompliant]);
 
@@ -63,7 +60,8 @@ function [h, b, c,  t] = heavyFrameOptimisation(maxN, maxS, maxM)
 
     % **3D Scatter Plot of Optimized Omega Sections**
     figure;
-    scatter3(successfulH, successfulB, successfulC,50, objectiveValue, 'filled');
+    scatter3(successfulH, successfulB, successfulC, 50, objectiveValue, 'o', ...
+        'MarkerFaceColor', 'flat', 'MarkerEdgeAlpha', 0.3, 'MarkerFaceAlpha', 0.3);
     xlabel('Web Height (H)');
     ylabel('Bottom Flange Width (B)');
     zlabel('Top Flange Width (C)');

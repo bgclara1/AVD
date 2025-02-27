@@ -74,61 +74,61 @@ SFland = getLandingSF(xDiscr, inertialAndAirWithReactionLanding);
 
 
 %------------- Plots --------------------------------
-
-
-                    figure;
-                    plot(xDiscr, InertialLoads, 'LineWidth', 1.5)
-                    title('Inertial Loads')                  
-
-                    %  figure;
-                    % bar(xDiscr, InertialLoads)
-                    % title('Inertial Loads')
+                    % 
                     % 
                     % figure;
-                    % bar(xDiscr, aero)
+                    % plot(xDiscr, InertialLoads, 'LineWidth', 1.5)
+                    % title('Inertial Loads')                  
+                    % 
+                    % %  figure;
+                    % % bar(xDiscr, InertialLoads)
+                    % % title('Inertial Loads')
+                    % % 
+                    % % figure;
+                    % % bar(xDiscr, aero)
+                    % % hold on;
+                    % % bar(xDiscr,aero15)
+                    % % title('Aero Loads')
+                    % % 
+                    % % figure;
+                    % % plot(xDiscr, aeroSF)
+                    % % title('Aero Loads')
+                    % 
+                    % % figure;
+                    % % plot(xDiscr, fuselageSF)
+                    % % title('Fuselage Only SF')
+                    % 
+                    % figure;
+                    % plot(xDiscr, SF_3_75)
+                    % title('SF at load factor 3.75')
+                    % 
+                    % figure;
+                    % plot(xDiscr, SF_1_5)
+                    % title('Aero SF at load factor - 1.5')
+                    % % 
+                    % figure;
+                    % plot(xDiscr, SF_OEI)
+                    % title('OEI SF')
+                    % 
+                    % % 
+                    % % figure;
+                    % % stairs(xDiscr, comboSF)
+                    % % title('combo SF')
+                    % % 
+                    % figure;
+                    % plot(xDiscr, SFland)
+                    % title('SF at landing')
+                    % 
+                    % figure;
+                    % plot(xDiscr, SF_3_75)
                     % hold on;
-                    % bar(xDiscr,aero15)
-                    % title('Aero Loads')
-                    % 
-                    % figure;
-                    % plot(xDiscr, aeroSF)
-                    % title('Aero Loads')
-
-                    % figure;
-                    % plot(xDiscr, fuselageSF)
-                    % title('Fuselage Only SF')
-
-                    figure;
-                    plot(xDiscr, SF_3_75)
-                    title('SF at load factor 3.75')
-
-                    figure;
-                    plot(xDiscr, SF_1_5)
-                    title('Aero SF at load factor - 1.5')
-                    % 
-                    figure;
-                    plot(xDiscr, SF_OEI)
-                    title('OEI SF')
-
-                    % 
-                    % figure;
-                    % stairs(xDiscr, comboSF)
-                    % title('combo SF')
-                    % 
-                    figure;
-                    plot(xDiscr, SFland)
-                    title('SF at landing')
-
-                    figure;
-                    plot(xDiscr, SF_3_75)
-                    hold on;
-                    plot(xDiscr,SF_1_5)
-                    hold on;
-                    plot(xDiscr, SF_OEI)
-                    hold on;
-                    plot(xDiscr, SFland)
-                    title('SF Plot')
-                    legend('n=3.75','n=-1.5', 'OEI', 'landing')
+                    % plot(xDiscr,SF_1_5)
+                    % hold on;
+                    % plot(xDiscr, SF_OEI)
+                    % hold on;
+                    % plot(xDiscr, SFland)
+                    % title('SF Plot')
+                    % legend('n=3.75','n=-1.5', 'OEI', 'landing')
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
@@ -204,15 +204,15 @@ figure;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 
- [skinThickness,stringerThickness,h,L,stringerSpacing] = stringerOptimisation(density)
+ %[skinThickness,stringerThickness,h,L,stringerSpacing] = stringerOptimisation(density)
 
 
-% skinThickness = 0.0042;
-% stringerSpacing = 0.1;
-% t_s = stringerSpacing;
-% h = 0.003;
-% stringerThickness = 0.0025;
-% L = 0.01;
+skinThickness = 0.0045;
+stringerSpacing = 0.1529;
+t_s = stringerSpacing;
+h = 0.0158;
+stringerThickness = 0.0016;
+L = 0.01;
 
 stringerArea = ZStringerArea(stringerThickness, h, L); % h height, L flange length
 
@@ -272,9 +272,9 @@ directStress = stressPlot(skinThickness,stringerArea,y,numStringers,density);
 
 %skinThickness = 0.01; %important var for skin bay buckling
 
-stringerSpacing = 0.15;
+%stringerSpacing = 0.15;
 
-[stringerStressCompliant,stringerEulerCompliant] = checkStringer(directStress, tensileYieldStress,E, h,stringerArea, L, t_s);
+[stringerStressCompliant,stringerEulerCompliant] = checkStringer(directStress, tensileYieldStress,EStringer, h,stringerArea, L, stringerThickness);
 [skinYieldCompliant, skinBucklingCompliant] = checkSkinBay(totalSFlow, skinThickness, stringerSpacing, shearYieldStressSkin, Ks, ESkin, nu);
 structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, skinYieldCompliant, skinBucklingCompliant]) % 0 false, 1 true
 
@@ -383,13 +383,15 @@ optimal_thickness = frameThicknessMatrix(row, col);
 % Wing front Spar 
 
 theta = 1.138; %dihedral
+r = 3.2425;
 
 angle = pi*(0:5:360)/180;
-Q = (SF_3_75(31))*cos(theta);  
-P = (SF_3_75(31))*sin(theta);           
+Q = abs((SF_3_75(31)))*cos(theta)/2/13;  
+P = abs(SF_3_75(31))*sin(theta)/2/13;           
 T = 0;
 
 [Nf, Sf, Mf] = calculateFrameLoads(P, Q, T, r, angle);
+
 maxNFWS = max(Nf) % maximum N front wing spar
 maxSFWS = max(Sf)
 maxMFWS = max(Mf)
@@ -408,11 +410,13 @@ legend('Normal Force (N)', 'Shear Force (S)', 'Moment (M)');
 title('Front Wing Spar Frame');
 grid on;
 
+
 % Rear wing Spar 
 angle = pi*(0:5:360)/180;
-Q = (SF_3_75(39))*cos(theta);  
-P = (SF_3_75(39))*sin(theta);         
+Q = (SF_3_75(39))*cos(theta)/2/13;  
+P = (SF_3_75(39))*sin(theta)/2/13;         
 T = 0;
+r = 3.2425;
 
 [Nf, Sf, Mf] = calculateFrameLoads(P, Q, T, r, angle);
 
@@ -437,8 +441,8 @@ grid on;
 r = 2.655;
 
 P = 0;
-Q = SF_3_75(71); 
-T = SF_OEI(71)/2;   
+Q = SF_3_75(71)/2/8; 
+T = SF_OEI(71)/2/8;   
 
 [Nf, Sf, Mf] = calculateFrameLoads(P, Q, T, r, angle);
 
@@ -462,8 +466,8 @@ grid on;
 %Rear tailplane frame
 
 P = 0;
-Q = SF_3_75(75); 
-T = SF_OEI(75)/2;   
+Q = SF_3_75(75)/2/8; 
+T = SF_OEI(75)/2/8;   
 r = 1.805;
 
 [Nf, Sf, Mf] = calculateFrameLoads(P, Q, T, r, angle);
@@ -494,27 +498,19 @@ grid on;
 %[h,l,t] = heavyFrameOptimisation(maxN,maxS,maxM);
 
 disp('Iterating Front Spar Wing ')
-[hFWS,lFWS,tFWS] = heavyFrameOptimisation(maxNFWS,maxSFWS,maxMFWS);
+[h1, b1, c1, t1] = heavyFrameOptimisation(maxNFWS,maxSFWS,maxMFWS);
 disp('Iterating Rear Spar Wing ')
-[hRWS,lRWS,tRWS] = heavyFrameOptimisation(maxNRWS,maxSRWS,maxMRWS);
+[h2, b2, c2, t2] = heavyFrameOptimisation(maxNRWS,maxSRWS,maxMRWS);
 disp('Iterating Front Spar Tail ')
-[hFTS,lFTS,tFTS] = heavyFrameOptimisation(maxNFTS,maxSFTS,maxMFTS);
+[h3, b3, c3, t3] = heavyFrameOptimisation(maxNFTS,maxSFTS,maxMFTS);
 disp('Iterating Rear Spar Tail ')
-[hRTS,lRTS,tRTS] = heavyFrameOptimisation(maxNRTS,maxSRTS,maxMRTS);
+[h4, b4, c4,  t4] = heavyFrameOptimisation(maxNRTS,maxSRTS,maxMRTS);
 disp('done ')
 
-% [hFWS,lFWS,tFWS] 
-% [hRWS,lRWS,tRWS]
-% [hFTS,lFTS,tFTS]
-% [hRTS,lRTS,tRTS] 
-
-
-
-
-
-
-
-
+[h1, b1, c1, t1] 
+[h2, b2, c2, t2]
+[h3, b3, c3, t3]
+[h4, b4, c4,  t4]
 
 
 
