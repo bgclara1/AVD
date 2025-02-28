@@ -110,8 +110,8 @@ function [skinThickness, stringerThickness, h, L, stringerSpacing] = optimizeStr
     [~, idxMin] = min(objectiveValue);
     hold on;
     plot3(successfulSkinThickness(idxMin), successfulStringerThickness(idxMin), successfulH(idxMin),...
-          'rp', 'MarkerSize', 15, 'MarkerFaceColor', 'r'); % Red stars for best solutions
-    legend('Viable Points', 'Minimum Mass Points');
+          'rp', 'MarkerSize', 15, 'MarkerFaceColor', 'r'); 
+    legend('Viable Points', 'Minimum Mass Point');
 
     skinThickness = successfulSkinThickness(idxMin)
     stringerThickness = successfulStringerThickness(idxMin)

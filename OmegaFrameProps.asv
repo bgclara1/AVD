@@ -1,0 +1,17 @@
+function [A, Ixx] = OmegaFrameProps(h, b, c, t)
+
+    xA = b*t;
+    yA = t*(h-2*t);
+    zA = c*t;
+
+    A = 2*xA + 2*yA + zA;
+
+    x = (b*t^3)/12+(b*t)*(0.5*c-t+0.5*b);
+    y = (t+(h-2*t)^3)/12 + t*(y-2*t)*(0.5*c-0.5*t);
+    z = (c*t^3)/12;
+
+    Ixx = 2*(x+y+z);
+    
+
+end
+    

@@ -74,12 +74,12 @@ SFland = getLandingSF(xDiscr, inertialAndAirWithReactionLanding);
 
 
 %------------- Plots --------------------------------
-                    % 
-                    % 
-                    % figure;
-                    % plot(xDiscr, InertialLoads, 'LineWidth', 1.5)
-                    % title('Inertial Loads')                  
-                    % 
+
+
+                    figure;
+                    bar(xDiscr, InertialLoads, 'LineWidth', 1.5)
+                    title('Inertial Loads')                  
+
                     % %  figure;
                     % % bar(xDiscr, InertialLoads)
                     % % title('Inertial Loads')
@@ -307,7 +307,7 @@ structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, sk
 
 % --------- FRAME GEOMETRIC AND MATERIAL PARAMETERS -----------------
 
-                    E = 7.3*1e9;
+                    E = 73*1e9;
                     D = 6.485;
                     L = 0.5; %changes?
                     C_f = 6.25*1e-5;
@@ -328,34 +328,43 @@ structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, sk
 frameThicknessMatrix = frameThickness(I_xx,bRange,hRange);
 frameAreaMatrix = frameArea(frameThicknessMatrix,bRange,hRange);
 
-[bGrid, hGrid] = meshgrid(bRange, hRange);
+[h, b, t, s] = lightFrameOptimisation(M_ult);
 
-figure;
-surf(bGrid, hGrid, frameThicknessMatrix', 'EdgeColor', 'none'); % Note the transpose
-xlabel('Flange Width b (m)');
-ylabel('Web Height h (m)');
-zlabel('Frame Thickness t_f (m)');
-title('Frame Thickness with Constant I_{xx}');
-colorbar;
-grid on;
+optimal_h =h;
+optimal_b = b;
+optimal_thickness = t;
+lightFrameSpacing = s;
 
 
-% 3D Plot for frame area
-figure;
-surf(bGrid, hGrid, frameAreaMatrix', 'EdgeColor', 'none');
-xlabel('Flange Width b (m)');
-ylabel('Web Height h (m)');
-zlabel('Frame Area A (m^2)');
-title('Frame Area with Constant I_{xx}');
-colorbar;
-grid on;
 
-% optimal light frame dimensions
-[minArea, idx] = min(frameAreaMatrix(:));
-[row, col] = ind2sub(size(frameAreaMatrix), idx);
-optimal_b = bRange(row);
-optimal_h = hRange(col);
-optimal_thickness = frameThicknessMatrix(row, col);
+% [bGrid, hGrid] = meshgrid(bRange, hRange);
+% 
+% figure;
+% surf(bGrid, hGrid, frameThicknessMatrix', 'EdgeColor', 'none'); % Note the transpose
+% xlabel('Flange Width b (m)');
+% ylabel('Web Height h (m)');
+% zlabel('Frame Thickness t_f (m)');
+% title('Frame Thickness with Constant I_{xx}');
+% colorbar;
+% grid on;
+% 
+% 
+% % 3D Plot for frame area
+% figure;
+% surf(bGrid, hGrid, frameAreaMatrix', 'EdgeColor', 'none');
+% xlabel('Flange Width b (m)');
+% ylabel('Web Height h (m)');
+% zlabel('Frame Area A (m^2)');
+% title('Frame Area with Constant I_{xx}');
+% colorbar;
+% grid on;
+% 
+% % optimal light frame dimensions
+% [minArea, idx] = min(frameAreaMatrix(:));
+% [row, col] = ind2sub(size(frameAreaMatrix), idx);
+% optimal_b = bRange(row);
+% optimal_h = hRange(col);
+% optimal_thickness = frameThicknessMatrix(row, col);
 
 % CONSIDER DOING BUCKLING ANALYSIS
 
@@ -382,12 +391,12 @@ optimal_thickness = frameThicknessMatrix(row, col);
 
 % Wing front Spar 
 
-theta = 1.138; %dihedral
+theta = pi*5/180; %dihedral
 r = 3.2425;
 
-angle = pi*(0:5:360)/180;
-Q = abs((SF_3_75(31)))*cos(theta)/2/13;  
-P = abs(SF_3_75(31))*sin(theta)/2/13;           
+angle = pi*(0:10:360)/180;
+Q = ((SF_3_75(31)))*cos(theta)/2;  
+P = (SF_3_75(31))*sin(theta)/2;           
 T = 0;
 
 [Nf, Sf, Mf] = calculateFrameLoads(P, Q, T, r, angle);
@@ -412,9 +421,9 @@ grid on;
 
 
 % Rear wing Spar 
-angle = pi*(0:5:360)/180;
-Q = (SF_3_75(39))*cos(theta)/2/13;  
-P = (SF_3_75(39))*sin(theta)/2/13;         
+angle = pi*(0:10:360)/180;
+Q = (SF_3_75(39))*cos(theta)/2;  
+P = (SF_3_75(39))*sin(theta)/2;         
 T = 0;
 r = 3.2425;
 
@@ -441,8 +450,8 @@ grid on;
 r = 2.655;
 
 P = 0;
-Q = SF_3_75(71)/2/8; 
-T = SF_OEI(71)/2/8;   
+Q = SF_3_75(71)/2; 
+T = 0;   
 
 [Nf, Sf, Mf] = calculateFrameLoads(P, Q, T, r, angle);
 
@@ -466,8 +475,8 @@ grid on;
 %Rear tailplane frame
 
 P = 0;
-Q = SF_3_75(75)/2/8; 
-T = SF_OEI(75)/2/8;   
+Q = SF_3_75(75)/2; 
+T = 0;   
 r = 1.805;
 
 [Nf, Sf, Mf] = calculateFrameLoads(P, Q, T, r, angle);
@@ -498,23 +507,53 @@ grid on;
 %[h,l,t] = heavyFrameOptimisation(maxN,maxS,maxM);
 
 disp('Iterating Front Spar Wing ')
-[h1, b1, c1, t1] = heavyFrameOptimisation(maxNFWS,maxSFWS,maxMFWS);
+%[h1, b1, c1, t1] = heavyFrameOptimisation(maxNFWS,maxSFWS,maxMFWS);
 disp('Iterating Rear Spar Wing ')
-[h2, b2, c2, t2] = heavyFrameOptimisation(maxNRWS,maxSRWS,maxMRWS);
+%[h2, b2, c2, t2] = heavyFrameOptimisation(maxNRWS,maxSRWS,maxMRWS);
 disp('Iterating Front Spar Tail ')
-[h3, b3, c3, t3] = heavyFrameOptimisation(maxNFTS,maxSFTS,maxMFTS);
+%[h3, b3, c3, t3] = heavyFrameOptimisation(maxNFTS,maxSFTS,maxMFTS);
 disp('Iterating Rear Spar Tail ')
-[h4, b4, c4,  t4] = heavyFrameOptimisation(maxNRTS,maxSRTS,maxMRTS);
+%[h4, b4, c4,  t4] = heavyFrameOptimisation(maxNRTS,maxSRTS,maxMRTS);
 disp('done ')
 
-[h1, b1, c1, t1] 
-[h2, b2, c2, t2]
-[h3, b3, c3, t3]
-[h4, b4, c4,  t4]
+[h1, b1, c1, t1] = deal(0.1969 ,   0.2381 ,   0.3000   , 0.0420);
+[h2, b2, c2, t2] = deal(0.1969   , 0.2072,    0.3000  ,  0.0659);
+[h3, b3, c3, t3] =  deal(0.1969  ,  0.2484  ,  0.3000 ,   0.0147);
+[h4, b4, c4,  t4] = deal(0.0732  ,  0.0422   , 0.1247   , 0.0078);
 
 
 
 
+%%%%%%%%%%%%%%%%%%%%%% FINAL WEIGHT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+r = 3.2425;
+stringers = numStringers*stringerArea*79*density
 
+massAftSweep = (337.21-335.836)*density; %hollow frustrum
+massNosecone = (66.06019-65.87696)*density; %hollow cone
+
+skin = pi*(r^2 - (r-0.0037)^2)*79*density
+skin = pi*(r^2 - (r-0.0045)^2)*79*density
+
+skin = pi*(r^2 - (r-skinThickness)^2)*47*density + massAftSweep + massNosecone
+lightFrameSpacing = 1;
+lightFrames = (2*optimal_thickness*optimal_b)+(optimal_thickness*optimal_h)*pi*2*r*density * (79/lightFrameSpacing)
+[heavyA1, ~] = OmegaFrameProps(h1, b1, c1, t1);
+heavy1 = heavyA1*2*pi*r*density
+[heavyA2, ~] = OmegaFrameProps(h2, b2, c2, t2);
+heavy2 = heavyA2*2*pi*r*density
+[heavyA3, ~] = OmegaFrameProps(h3, b3, c3, t3);
+heavy3 = heavyA3*2*pi*r*density
+[heavyA4, ~] = OmegaFrameProps(h4, b4, c4, t4);
+heavy4 = heavyA4*2*pi*r*density
+heavyFrames = heavy1 + heavy2 + heavy3 + heavy4
+
+totalFuselageMass = stringers + skin  + heavyFrames
+
+
+% stringers = 1,500.7
+% skin = 16,300
+% light frames = 1,106.8
+% heavy frames = 8,067.7
+% total = 25,868

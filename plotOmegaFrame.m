@@ -1,30 +1,31 @@
-function plotOmegaFrame(h, b, c, s, t)
+function plotOmegaFrame(h, b, c, t)
     figure;
     hold on;
     
-    % Define section coordinates
-    % Webs (Vertical sections)
-    webX = [-c/2, -c/2, -c/2+s, -c/2+s, c/2-s, c/2-s, c/2, c/2];
-    webY = [0, h, h, 0, 0, h, h, 0];
+    % Define the coordinates of the omega section
+    x = [0,0.5*c,0.5*c,0.5*c+b-t,0.5*c+b-t,0.5*c-t,0.5*c-t,-1*(0.5*c-t),-1*(0.5*c-t),-1*(0.5*c+b-t),-1*(0.5*c+b-t),-1*0.5*c,-1*0.5*c,0];
+    y = [0,0,h-t,h-t,h,h,t,t,h,h,h-t,h-t,0,0];
     
-    % Top flange (Horizontal section)
-    topFlangeX = [-c/2, c/2, c/2, -c/2];
-    topFlangeY = [h, h, h+t, h+t];
 
-    % Bottom flanges (Horizontal extensions)
-    bottomFlangeX = [-b/2, -c/2, -c/2, -b/2, b/2, c/2, c/2, b/2];
-    bottomFlangeY = [0, 0, -t, -t, -t, -t, 0, 0];
+    x = [-c/2, -b/2, -b/2, b/2, b/2, c/2, c/2, b/2, b/2, -b/2, -b/2, -c/2, -c/2];
+    y = [h+t, h+t, t, t, h+t, h+t, h, h, 0, 0, h, h, h+t];
 
-    % Plot each section
-    fill(webX, webY, 'b', 'FaceAlpha', 0.5); % Webs
-    fill(topFlangeX, topFlangeY, 'b', 'FaceAlpha', 0.5); % Top flange
-    fill(bottomFlangeX, bottomFlangeY, 'b', 'FaceAlpha', 0.5); % Bottom flanges
+    % Fill the omega section shape
+    plot(x, y);
 
-    % Formatting
     xlabel('Width (m)');
     ylabel('Height (m)');
     title('Omega Section Geometry');
-    axis equal;
+
     grid on;
     hold off;
 end
+
+
+
+
+
+
+
+
+

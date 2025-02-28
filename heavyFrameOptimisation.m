@@ -1,16 +1,16 @@
 function [h, b, c,  t] = heavyFrameOptimisation(maxN, maxS, maxM)
      
-    tensileYieldStressFrame = 310e6;
+    tensileYieldStressFrame = 413e6;
     shearYieldStressFrame = 250e6;
 
-     % [Web height, Bottom flange width, Top flange width, Base thickness]
-    lb = [0.001, 0.001, 0.001, 0.003]; 
-    ub = [0.5, 0.5,0.5, 0.02];    
+     % [Web height, Bottom flange width (2 short), Top flange width (long) , Base thickness]
+    lb = [0.001, 0.001, 0.001, 0.001]; 
+    ub = [0.3 0.3, 0.3, 0.1];    
 
-    hRange = linspace(lb(1), ub(1), 75);
-    bRange = linspace(lb(2), ub(2), 75);
-    cRange = linspace(lb(3), ub(3), 75);
-    tRange = linspace(lb(4), ub(4), 75);
+    hRange = linspace(lb(1), ub(1), 30);
+    bRange = linspace(lb(2), ub(2), 30);
+    cRange = linspace(lb(3), ub(3), 30);
+    tRange = linspace(lb(4), ub(4), 30);
 
     success = [];
     for i = 1:length(hRange)
@@ -21,22 +21,21 @@ function [h, b, c,  t] = heavyFrameOptimisation(maxN, maxS, maxM)
                 currentC = cRange(k);
                 for l = 1:length(tRange)
                     currentT = tRange(l);
-                 % New constraints for currentC
-                    if (currentC / currentH < 1.5) || (currentC / currentH > 4)
-                        continue; % Ensure currentC is 1.5 to 4 times bigger than currentH
+          
+                    if (currentC / currentH < 1.5) || (currentC / currentH > 15)
+                        continue; 
                     end
-                    if (currentC / currentB < 1.5) || (currentC / currentB > 4)
-                        continue; % Ensure currentC is 1.5 to 4 times bigger than currentB
+                    if (currentC / currentB < 1.2) || (currentC / currentB > 15)
+                        continue; 
                     end
-                    if (currentC / currentT < 4) || (currentC / currentT > 15)
-                        continue; % Ensure currentC is 1.5 to 4 times bigger than currentB
+                    if (currentC / currentT < 3.5) || (currentC / currentT > 30)
+                        continue; 
                     end
-                                        % Compute cross-section properties
+                               
                     [currentFrameArea, currentFrameIxx] = OmegaFrameProps(currentH, currentB, currentC, currentT);
 
-                    % Structural Compliance Checks
-                    directStressCompliant = maxN <= tensileYieldStressFrame * currentFrameArea;
-                    shearStressCompliant = maxS <= shearYieldStressFrame * currentFrameArea;
+                    directStressCompliant = maxN/currentFrameArea <= tensileYieldStressFrame ;
+                    shearStressCompliant = maxS/currentFrameArea <= shearYieldStressFrame;
                     bendingStressCompliant = (maxM/currentFrameIxx)*(currentH/2) <= tensileYieldStressFrame ;
 
                     structurallyCompliant = all([directStressCompliant, shearStressCompliant, bendingStressCompliant]);
@@ -50,20 +49,21 @@ function [h, b, c,  t] = heavyFrameOptimisation(maxN, maxS, maxM)
         end
     end
 
-    % Extract successful values
+
     successfulH = hRange(success(:,1));
     successfulB = bRange(success(:,2));
     successfulC = cRange(success(:,3));
     successfulT = tRange(success(:,4));
     successfulArea = success(:,5);
 
-    % **Objective function: Minimize cross-section area**
     objectiveValue = successfulArea;
     [~, idxMin] = min(objectiveValue);
 
-    % **3D Scatter Plot of Optimized Omega Sections**
+  
     figure;
-    scatter3(successfulH, successfulB, successfulC,50, objectiveValue, 'filled');
+    scatter3(successfulH, successfulB, successfulC, 50, objectiveValue, 'o', ...
+         'MarkerFaceColor', 'flat', 'MarkerEdgeAlpha', 0.3, 'MarkerFaceAlpha', 0.3);
+
     xlabel('Web Height (H)');
     ylabel('Bottom Flange Width (B)');
     zlabel('Top Flange Width (C)');
@@ -75,12 +75,11 @@ function [h, b, c,  t] = heavyFrameOptimisation(maxN, maxS, maxM)
         'rp', 'MarkerSize', 12, 'MarkerFaceColor', 'r');
     legend('Design Points', 'Minimum Objective');
 
-    % **Assign optimal values**
+
     h = successfulH(idxMin);
     b = successfulB(idxMin);
     c = successfulC(idxMin);
     t = successfulT(idxMin);
 
-    % **Plot Omega Section**
-   % plotOmegaFrame(h, b, c, s, t);
+   % plotOmegaFrame(h, b, c, t);
 end

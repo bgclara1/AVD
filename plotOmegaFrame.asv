@@ -1,0 +1,18 @@
+function plotOmegaFrame(h, b, c, t)
+    figure;
+    hold on;
+    
+    % Define the coordinates of the omega section
+    x = [0,0.5*c,0.5*c,0.5*c+b-t];
+    y = [0,0,h-t,h];
+    
+    % Fill the omega section shape
+    fill(x, y, 'b', 'FaceAlpha', 0.5, 'EdgeColor', 'k', 'LineWidth', 1.5);
+
+    xlabel('Width (m)');
+    ylabel('Height (m)');
+    title('Omega Section Geometry');
+    axis equal;
+    grid on;
+    hold off;
+end

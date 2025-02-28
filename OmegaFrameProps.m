@@ -14,18 +14,18 @@ function [A, Ixx] = OmegaFrameProps(h, b, c, t)
     I_long_flange = (c * t^3) / 12;   
     I_short_flange = (b * t^3) / 12;  
 
-    % Step 5: Apply the parallel axis theorem for each rectangle
-    d_web = y_web - y_centroid;                     % Distance for vertical webs
-    d_long_flange = y_long_flange - y_centroid;     % Distance for long horizontal flange
-    d_short_flange = y_short_flange - y_centroid;   % Distance for short horizontal flanges
+    d_web = y_web - y_centroid;                  
+    d_long_flange = y_long_flange - y_centroid;    
+    d_short_flange = y_short_flange - y_centroid;   
 
-    Ixx_web = 2 * (I_web + A_web * d_web^2);                % Contribution from vertical webs
-    Ixx_long_flange = I_long_flange + A_long_flange * d_long_flange^2; % Contribution from long horizontal flange
-    Ixx_short_flange = 2 * (I_short_flange + A_short_flange * d_short_flange^2); % Contribution from short horizontal flanges
-
+    Ixx_web = 2 * (I_web + A_web * d_web^2);              
+    Ixx_long_flange = I_long_flange + A_long_flange * d_long_flange^2;
+    Ixx_short_flange = 2 * (I_short_flange + A_short_flange * d_short_flange^2); 
+    
     Ixx = Ixx_web + Ixx_long_flange + Ixx_short_flange;
 
 
+end
 
 
     
