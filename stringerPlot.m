@@ -2,9 +2,8 @@ function [x,y,numStringers] = stringerPlot(StringerSpacing)
 
     n = 3.75;
     W = 330800 * 9.81;
-    r = 3.195;     % Fuselage radius
+    r = 3.195;    
 
-    % Given Data
     C = 2 * pi * r;
    % StringerSpacing = 0.5; % Change
     numStringers = floor(C / StringerSpacing);

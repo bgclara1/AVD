@@ -3,10 +3,10 @@ function [theta, PlotSFlow, circle, skinThickness,totalSFlow] = plotShearFlow(sh
 
     n = 3.75;
     W = 330800 * 9.81;
-    Q = n * W;    % Radial load
-    r = 3.195;     % Fuselage radius
-    P = 0;        % Tangential load
-    T = 0;        % Torque
+    Q = n * W;  
+    r = 3.195;     
+    P = 0;        
+    T = 0;      
 
     phi(1) = 180;
     for i = 2:37
@@ -35,18 +35,18 @@ function [theta, PlotSFlow, circle, skinThickness,totalSFlow] = plotShearFlow(sh
         end 
     end
     
-    % 
-    % figure
-    % polarplot(theta,PlotSFlow,'b-','LineWidth', 3)
-    % hold on;
-    % polarplot(theta,circle,'r-', 'LineWidth', 2)
-    % ax = gca; 
-    % ax.ThetaZeroLocation = 'top';
-    % ax.ThetaDir = 'clockwise';
-    % title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
-    % grid on;
-    % legend('Shear Flow', 'Fuselage', 'Location', 'best');
-    % 
+
+    figure
+    polarplot(theta,PlotSFlow,'b-','LineWidth', 3)
+    hold on;
+    polarplot(theta,circle,'r-', 'LineWidth', 2)
+    ax = gca; 
+    ax.ThetaZeroLocation = 'top';
+    ax.ThetaDir = 'clockwise';
+    title('Shear Flow Distribution Around Fuselage', 'FontSize', 14, 'FontWeight', 'bold');
+    grid on;
+    legend('Shear Flow', 'Fuselage', 'Location', 'best');
+
     
     
     maxTotSF = max(abs(totalSFlow)); 

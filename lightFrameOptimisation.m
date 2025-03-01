@@ -1,6 +1,6 @@
 function [h, b, t, s] = lightFrameOptimisation(M_ult)
      
-    % Material and structural properties
+
     E = 73*1e9;  
     D = 6.485;    
     %L = 0.516;   
@@ -9,7 +9,7 @@ function [h, b, t, s] = lightFrameOptimisation(M_ult)
     % EI = C_f * M_ult * D^2 / L;
     % I_required = EI / E;
 
-         % h,    b,     t,   s (spacing)
+         % h,    b,     t,   s (spacing
     lb = [0.02, 0.01, 0.001, 0.45];
     ub = [0.12, 0.5, 0.01, 0.6]; 
 
@@ -61,7 +61,7 @@ function [h, b, t, s] = lightFrameOptimisation(M_ult)
         end
     end
 
-    % Extract successful values
+
     successfulH = hRange(success(:,1));
     successfulB = bRange(success(:,2));
     successfulT = tRange(success(:,3));
@@ -69,11 +69,9 @@ function [h, b, t, s] = lightFrameOptimisation(M_ult)
     successfulArea = success(:,5);
     successfulIxx = success(:,6);
 
-    % Optimisation objective: Minimise area while meeting stiffness
     objectiveValue = successfulArea'.*successfulS;
     [~, idxMin] = min(objectiveValue);
 
-    % Plot results
     figure;
     scatter3(successfulH, successfulB, successfulT, 50, objectiveValue, 'o', ...
          'MarkerFaceColor', 'flat', 'MarkerEdgeAlpha', 0.3, 'MarkerFaceAlpha', 0.3);
@@ -88,7 +86,7 @@ function [h, b, t, s] = lightFrameOptimisation(M_ult)
         'rp', 'MarkerSize', 12, 'MarkerFaceColor', 'r');
     legend('Design Points', 'Minimum Mass');
 
-    % Return optimised dimensions
+
     h = successfulH(idxMin);
     b = successfulB(idxMin);
     t = successfulT(idxMin);

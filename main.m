@@ -219,7 +219,7 @@ stringerArea = ZStringerArea(stringerThickness, h, L); % h height, L flange leng
 % Stringer Diagram
 [x, y, numStringers] = stringerPlot(stringerSpacing);
 
-%[~, ~, ~, minSkinThickness, ~] = plotShearFlow(shearYieldStressSkin);
+[~, ~, ~, minSkinThickness, ~] = plotShearFlow(shearYieldStressSkin);
 
 
 % Shear Flow plot
@@ -288,14 +288,14 @@ structurallyCompliant = all([stringerStressCompliant, stringerEulerCompliant, sk
 
            D = 6.485;
             r = D/2;
-            cabinPressure = 50507.26;
+            cabinPressure = 77007;
             atmosphericPressure = 0.1013*1e6;
-            pressureLoad = (atmosphericPressure-cabinPressure)*1e-5;
+            pressureLoad = (atmosphericPressure-cabinPressure);
 
 % -----------------------------------------------------------------
 
 % fuselage component stresses
-[hoopStress, longitudinalStress, sphericalStress] = pressureStresses(D, skinThickness,pressureLoad,atmosphericPressure);
+[hoopStress, longitudinalStress, sphericalStress] = pressureStresses(D, skinThickness, pressureLoad);
 
 % pressure thickness requirements
 [skinThicknessPressure,domeThickness] = pressureThicknesses(D,pressureLoad,atmosphericPressure,tensileYieldStress, nu);
@@ -540,13 +540,13 @@ skin = pi*(r^2 - (r-skinThickness)^2)*47*density + massAftSweep + massNosecone
 lightFrameSpacing = 1;
 lightFrames = (2*optimal_thickness*optimal_b)+(optimal_thickness*optimal_h)*pi*2*r*density * (79/lightFrameSpacing)
 [heavyA1, ~] = OmegaFrameProps(h1, b1, c1, t1);
-heavy1 = heavyA1*2*pi*r*density
+heavy1 = heavyA1*2*pi*r*density;
 [heavyA2, ~] = OmegaFrameProps(h2, b2, c2, t2);
-heavy2 = heavyA2*2*pi*r*density
+heavy2 = heavyA2*2*pi*r*density;
 [heavyA3, ~] = OmegaFrameProps(h3, b3, c3, t3);
-heavy3 = heavyA3*2*pi*r*density
+heavy3 = heavyA3*2*pi*r*density;
 [heavyA4, ~] = OmegaFrameProps(h4, b4, c4, t4);
-heavy4 = heavyA4*2*pi*r*density
+heavy4 = heavyA4*2*pi*r*density;
 heavyFrames = heavy1 + heavy2 + heavy3 + heavy4
 
 totalFuselageMass = stringers + skin  + heavyFrames

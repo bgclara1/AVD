@@ -1,6 +1,6 @@
 function directStress = stressPlot(skinThickness,StringerArea,y,numStringers,density)
 
-    r = 3.195;     % Fuselage radius
+    r = 3.195;   
     M = 1e+07;
     C = 2 * pi * r;
 

@@ -21,7 +21,7 @@ function getOEI(total)
     OEI_Aileron = OEI_Moment/(SemiSpan/2);
 
     
-    wingWidth = 13.6; %chord
+    wingWidth = 13.6; 
     WingLE = 28.4779;
     xPosFSW = WingLE+0.2*wingWidth;
     xPosBSW = WingLE + 0.8*wingWidth;

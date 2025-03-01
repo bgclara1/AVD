@@ -1,7 +1,17 @@
-function [hoopStress, longitudinalStress, sphericalStress] = pressureStresses(D, skinThickness,pressureLoad,atmosphericPressure)
+function [hoopStress, longitudinalStress, sphericalStress, FatigueCycles] = pressureStresses(D, skinThickness, pressureLoad)
 
-    hoopStress = (D/(2*skinThickness))*pressureLoad*atmosphericPressure;
-    longitudinalStress = (D/(4*skinThickness))*pressureLoad*atmosphericPressure;
-    sphericalStress = (D/(4*skinThickness))*pressureLoad*atmosphericPressure;
+
+    hoopStress = (pressureLoad * D) / (2 * skinThickness); 
+    longitudinalStress = (pressureLoad * D) / (4 * skinThickness); 
+    sphericalStress = (pressureLoad * D) / (4 * skinThickness); 
+
+    sigma_fatigue = 138e6;
+    m_fatigue = 5; 
+    
+    FatigueCycles = ((sigma_fatigue / hoopStress) ^ m_fatigue);
+
 
 end
+
+
+
