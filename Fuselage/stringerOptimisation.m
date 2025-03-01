@@ -1,16 +1,15 @@
 function [skinThickness, stringerThickness, h, L, stringerSpacing] = optimizeStringerDesign(density)
 
 
-    set(0, 'defaultfigurecolor', [1 1 1]);
-    set(groot, 'defaultAxesFontSize', 15);
-    set(groot, 'defaulttextfontsize', 15);
-    set(groot, 'defaultLineMarkerSize', 4);
-    set(groot, 'defaultLineLineWidth', 1.5);
-    set(groot, 'defaultAxesXGrid', 'on');
-    set(groot, 'defaultAxesYGrid', 'on');
-    set(groot, 'DefaultAxesBox', 'off');
-    set(groot, 'defaultAxesFontName', 'Cambria Math');
-
+    set(0,'defaultfigurecolor',[1 1 1])
+set(groot,'defaultAxesFontSize',25)
+set(groot,'defaulttextfontsize',25)
+set(groot,'defaultLineMarkerSize',4)
+set(groot,'defaultLineLineWidth',1.5)
+set(groot,'defaultAxesXGrid','on')
+set(groot,'defaultAxesYGrid','on')
+set(groot, 'DefaultAxesBox', 'off')
+set(groot, 'defaultAxesFontName','Cambria Math')
 
     tensileYieldStressStringer = 490e6;  
     shearYieldStressStringer = 310e6;     
